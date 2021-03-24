@@ -11,6 +11,8 @@ void map_validation();
 
 int main_loop();
 
+int key_release();
+
 # define WIN_WIDTH 800
 # define WIN_HEIGHT 600
 
@@ -24,6 +26,12 @@ typedef struct		s_xy {
 	double y;
 }					t_xy;
 
+typedef struct		s_key {
+	int w;
+	int a;
+	int s;
+	int d;
+}					t_key;
 
 typedef struct		s_info
 {
@@ -32,9 +40,15 @@ typedef struct		s_info
 	t_xy	dir; //방향
 	t_xy	pos; //위치
 	t_xy	plane; //오른쪽 blue 끝점.
+
+	// 키보드.
+	t_key	key;
+
 	t_xy	move; //움직임? => 키보드 눌릴 시 사용.
 	t_xy	x_move; // x축 움직임? => 키보드 눌릴 시 사용. 뭘까
-	t_xy	rotate; // 회전시 필요.
+
+	double	move_speed;
+	double	rotate_speed; // 회전시 필요.
 
 }					t_info;
 
@@ -63,23 +77,50 @@ typedef struct	s_img
 	int			endian;
 }				t_img;
 
+void exit_game()
+{
+
+}
 
 
 //keycode는 내가 누른 키보드 입력값.
-int				key_press(int keycode, t_info *info)
-{
+int				key_press(int keycode, t_info *info) {
 	static int a = 0;
 
 	if (keycode == KEY_ESC) //프로그램 종료.
 		exit(0);
+	else if (keycode == KEY_W)
+		info->key.w = 1;
+	else if (keycode == KEY_A)
+		info->key.a = 1;
+	else if (keycode == KEY_S)
+		info->key.w = 1;
+	else if (keycode == KEY_D)
+		info->key.d = 1;
+	return (0);
+}
+
+//키보드를 땠을때.
+int key_release(int keycode, t_info *info) {
+	if (keycode == KEY_ESC) //프로그램 종료.
+		exit(0);
+	else if (keycode == KEY_W)
+		info->key.w = 0;
+	else if (keycode == KEY_A)
+		info->key.a = 0;
+	else if (keycode == KEY_S)
+		info->key.w = 0;
+	else if (keycode == KEY_D)
+		info->key.d = 0;
+	return (0);
+}
+
 //	// W 버튼일때 x증가.
 //	if (keycode == KEY_W)//Action when W key pressed
 //		param->x++;
 //	else if (keycode == KEY_S) //s키 일때,
 //		param->x--;
 //	else if (keycode == KEY_A)
-	return (0);
-}
 
 // 눌리고 있을때로 추정됨.
 //int		key_release(int key, t_info *info)
@@ -145,10 +186,19 @@ void init_info(t_info *info)
 	set_xy(&info->move, 0, 0);
 	set_xy(&info->x_move, 0, 0);
 
-//	info.moveSpeed = 0.05;
-//	info.rotSpeed = 0.05;
+	//회전 및 움직임 정도.
+	info->move_speed = 0.5;
+	info->rotate_speed = 0.05;
+
+	// 키보드 초기화.
+	info->key.w = 0;
+	info->key.a = 0;
+	info->key.s = 0;
+	info->key.d = 0;
+
 }
 
+//x의 위치에서 세로로쭉 pixel을 하나씩 찍어주는 함수.
 void	verLine(t_info *info, int x, int y1, int y2, int color)
 {
 	int	y;
@@ -159,6 +209,21 @@ void	verLine(t_info *info, int x, int y1, int y2, int color)
 		mlx_pixel_put(info->mlx_ptr, info->win, x, y, color);
 		y++;
 	}
+}
+
+// 맵 체크. 리턴 1
+int map_check()
+{
+
+	//# define IN_MAP(p, c)		(CHECK_TOP(p) && CHECK_BOT(p, c))
+
+	//# define CHECK_TOP(p)		(FINT(p.x) >= 0 && FINT(p.y) >= 0)
+	//# define CHECK_BOT(p, c)	(FINT(p.x) < (c).columns && FINT(p.y) < (c).rows)
+
+	// # define FINT(x)			((int)floor(x))
+
+	//# define MAP(p, c) 			(c).map[(FINT(p.y) * (c).columns) + FINT(p.x)]
+	//# define MAP_XY(x, y, c) 	(c).map[(FINT(y) * (c).columns) + FINT(x)]
 }
 
 void	calc(t_info *info)
@@ -237,13 +302,14 @@ void	calc(t_info *info)
 		else
 			perpWallDist = (mapY - info->pos.y + (1 - step.y) / 2) / ray_dir.y;
 
+		// win 높이를 사용해서 벽의 높이를 구함
 		int lineHeight = (int)(WIN_HEIGHT / perpWallDist); //거리에 반비례.
 
 		int drawStart = -lineHeight / 2 + WIN_HEIGHT / 2;
-		if(drawStart < 0)
+		if(drawStart < 0) // 시작 위치가 음수일경우 0부터 그리도록.
 			drawStart = 0;
-		int drawEnd = lineHeight / 2 + WIN_HEIGHT / 2;
-		if(drawEnd >= WIN_HEIGHT)
+		int drawEnd = lineHeight / 2 + WIN_HEIGHT / 2; // 끝나는 높이 좌표.
+		if(drawEnd >= WIN_HEIGHT) // 높이가 초과될경우 화면의 가장 끝에 보이도록.
 			drawEnd = WIN_HEIGHT - 1;
 
 		int	color;
@@ -258,6 +324,7 @@ void	calc(t_info *info)
 		else
 			color = 0xFFFF00;
 
+		//색상 값 조절.
 		if (side == 1)
 			color = color / 2;
 
@@ -265,8 +332,72 @@ void	calc(t_info *info)
 	}
 }
 
+//key_event.c todo
+//회전 행렬을 곱해야함. 방향벡터와 카메라평면벡터 둘 다 회전
+void rotate(t_info *info)
+{
+	int flag;
+	double old;
+
+//	if (info->key.a)
+//		flag = 1;
+//	else
+//		flag = -1;
+	// 오른쪽이면
+	flag = info->key.a == 1 ? 1 : -1;
+
+	//방향벡터 회전
+	old = info->dir.x;
+	info->dir.x = info->dir.x * cos(info->rotate_speed * flag)
+			- info->dir.y * sin(info->rotate_speed * flag);
+	info->dir.y = old * sin(info->rotate_speed * flag)
+			+ info->dir.y * cos(info->rotate_speed * flag);
+
+	old = info->plane.x;
+	info->plane.x = info->plane.x * cos(info->rotate_speed * flag)
+				  - info->plane.y * sin(info->rotate_speed * flag);
+	info->plane.y = old * sin(info->rotate_speed * flag)
+				  + info->plane.y * cos(info->rotate_speed * flag);
+
+	//	double oldDirX = dirX;
+	//	dirX = dirX * cos(-rotSpeed) - dirY * sin(-rotSpeed);
+	//	dirY = oldDirX * sin(-rotSpeed) + dirY * cos(-rotSpeed);
+	//	double oldPlaneX = planeX;
+	//	planeX = planeX * cos(-rotSpeed) - planeY * sin(-rotSpeed);
+	//	planeY = oldPlaneX * sin(-rotSpeed) + planeY * cos(-rotSpeed);
+}
+
+//위 아래로 움직여야함.
+void move(t_info *info)
+{
+
+	if (info->key.w)
+	{
+		if (!worldMap[(int)(info->pos.x + info->dir.x * info->move_speed)][(int)(info->pos.y)])
+			info->pos.x += info->dir.x * info->move_speed;
+		if (!worldMap[(int)(info->pos.x)][(int)(info->pos.y + info->dir.y * info->move_speed)])
+			info->pos.y += info->dir.y * info->move_speed;
+	}
+	else if (info->key.s)
+	{
+		if (!worldMap[(int)(info->pos.x - info->dir.x * info->move_speed)][(int)(info->pos.y)])
+			info->pos.x -= info->dir.x * info->move_speed;
+		if (!worldMap[(int)(info->pos.x)][(int)(info->pos.y - info->dir.y * info->move_speed)])
+			info->pos.y -= info->dir.y * info->move_speed;
+	}
+}
+
+
 int main_loop(t_info *info)
 {
+
+	//keyboard rotate
+	if (info->key.a || info->key.d)
+		rotate(info);
+	else if (info->key.w || info->key.s)
+		move(info);
+
+
 
 	calc(info);
 	//update 로직. 키가 업데이트 되었을때 화면을 바꿔야함.
@@ -287,6 +418,7 @@ int			main(void)
 
 	//키 이벤트, 키 함수.
 	mlx_hook(info.win, X_EVENT_KEY_PRESS, 0, &key_press, &info);
+	mlx_hook(info.win, X_EVENT_KEY_release, 0, &key_release, &info);
 
 	//
 	mlx_loop_hook(info.mlx_ptr, &main_loop, &info);
