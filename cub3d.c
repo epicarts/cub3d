@@ -19,6 +19,8 @@ int key_release();
 #define mapWidth 24
 #define mapHeight 24
 
+#define texWidth 64
+#define texHeight 64
 
 
 typedef struct		s_xy {
@@ -32,33 +34,6 @@ typedef struct		s_key {
 	int s;
 	int d;
 }					t_key;
-
-typedef struct		s_info
-{
-	void			*mlx_ptr;
-	void			*win;
-	t_xy	dir; //방향
-	t_xy	pos; //위치
-	t_xy	plane; //오른쪽 blue 끝점.
-
-	// 키보드.
-	t_key	key;
-
-	t_xy	move; //움직임? => 키보드 눌릴 시 사용.
-	t_xy	x_move; // x축 움직임? => 키보드 눌릴 시 사용. 뭘까
-
-	double	move_speed;
-	double	rotate_speed; // 회전시 필요.
-
-}					t_info;
-
-typedef struct	s_camera
-{
-	t_xy	pos;
-	t_xy	dir;
-	t_xy	x_dir;
-	t_xy	plane;
-}				t_camera;
 
 typedef struct	s_img
 {
@@ -77,6 +52,37 @@ typedef struct	s_img
 	int			endian;
 }				t_img;
 
+typedef struct		s_info
+{
+	void			*mlx_ptr;
+	void			*win;
+	t_xy	dir; //방향
+	t_xy	pos; //위치
+	t_xy	plane; //오른쪽 blue 끝점.
+
+	// 키보드.
+	t_key	key;
+
+	t_xy	move; //움직임? => 키보드 눌릴 시 사용.
+	t_xy	x_move; // x축 움직임? => 키보드 눌릴 시 사용. 뭘까
+
+	double	move_speed;
+	double	rotate_speed; // 회전시 필요.
+
+	t_img	img;
+	int		buf[WIN_HEIGHT][WIN_WIDTH];
+	int		**texture;
+
+}					t_info;
+
+typedef struct	s_camera
+{
+	t_xy	pos;
+	t_xy	dir;
+	t_xy	x_dir;
+	t_xy	plane;
+}				t_camera;
+
 void exit_game()
 {
 
@@ -94,7 +100,7 @@ int				key_press(int keycode, t_info *info) {
 	else if (keycode == KEY_A)
 		info->key.a = 1;
 	else if (keycode == KEY_S)
-		info->key.w = 1;
+		info->key.s = 1;
 	else if (keycode == KEY_D)
 		info->key.d = 1;
 	return (0);
@@ -109,7 +115,7 @@ int key_release(int keycode, t_info *info) {
 	else if (keycode == KEY_A)
 		info->key.a = 0;
 	else if (keycode == KEY_S)
-		info->key.w = 0;
+		info->key.s = 0;
 	else if (keycode == KEY_D)
 		info->key.d = 0;
 	return (0);
@@ -129,32 +135,32 @@ int key_release(int keycode, t_info *info) {
 //}
 
 // 2차원 배열의 맵.
-int worldMap[mapWidth][mapHeight]=
-{
-				{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-				{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-				{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-				{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-				{1,0,0,0,0,0,2,2,2,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
-				{1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
-				{1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,3,0,0,0,3,0,0,0,1},
-				{1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
-				{1,0,0,0,0,0,2,2,0,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
-				{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-				{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-				{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-				{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-				{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-				{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-				{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-				{1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-				{1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-				{1,4,0,0,0,0,5,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-				{1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-				{1,4,0,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-				{1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-				{1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-				{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
+int	worldMap[mapWidth][mapHeight] =
+		{
+				{4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7},
+				{4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7},
+				{4,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
+				{4,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
+				{4,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7},
+				{4,0,4,0,0,0,0,5,5,5,5,5,5,5,5,5,7,7,0,7,7,7,7,7},
+				{4,0,5,0,0,0,0,5,0,5,0,5,0,5,0,5,7,0,0,0,7,7,7,1},
+				{4,0,6,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,8},
+				{4,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,7,7,1},
+				{4,0,8,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,8},
+				{4,0,0,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,7,7,7,1},
+				{4,0,0,0,0,0,0,5,5,5,5,0,5,5,5,5,7,7,7,7,7,7,7,1},
+				{6,6,6,6,6,6,6,6,6,6,6,0,6,6,6,6,6,6,6,6,6,6,6,6},
+				{8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4},
+				{6,6,6,6,6,6,0,6,6,6,6,0,6,6,6,6,6,6,6,6,6,6,6,6},
+				{4,4,4,4,4,4,0,4,4,4,6,0,6,2,2,2,2,2,2,2,3,3,3,3},
+				{4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2},
+				{4,0,0,0,0,0,0,0,0,0,0,0,6,2,0,0,5,0,0,2,0,0,0,2},
+				{4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,2,0,2,2},
+				{4,0,6,0,6,0,0,0,0,4,6,0,0,0,0,0,5,0,0,0,0,0,0,2},
+				{4,0,0,5,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,2,0,2,2},
+				{4,0,6,0,6,0,0,0,0,4,6,0,6,2,0,0,5,0,0,2,0,0,0,2},
+				{4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2},
+				{4,4,4,4,4,4,4,4,4,4,1,1,1,2,2,2,2,2,2,3,3,3,3,3}
 };
 
 void set_xy(t_xy *xy, double x, double y)
@@ -187,7 +193,7 @@ void init_info(t_info *info)
 	set_xy(&info->x_move, 0, 0);
 
 	//회전 및 움직임 정도.
-	info->move_speed = 0.5;
+	info->move_speed = 0.05;
 	info->rotate_speed = 0.05;
 
 	// 키보드 초기화.
@@ -224,6 +230,34 @@ int map_check()
 
 	//# define MAP(p, c) 			(c).map[(FINT(p.y) * (c).columns) + FINT(p.x)]
 	//# define MAP_XY(x, y, c) 	(c).map[(FINT(y) * (c).columns) + FINT(x)]
+}
+
+void	load_image(t_info *info, int *texture, char *path, t_img *img)
+{
+	img->img_ptr = mlx_xpm_file_to_image(info->mlx_ptr, path, &img->width, &img->height);
+	img->data = (int *)mlx_get_data_addr(img->img_ptr, &img->bpp, &img->size_line, &img->endian);
+	for (int y = 0; y < img->height; y++)
+	{
+		for (int x = 0; x < img->width; x++)
+		{
+			texture[img->width * y + x] = img->data[img->width * y + x];
+		}
+	}
+	mlx_destroy_image(info->mlx_ptr, img->img_ptr); // 배열에 저장했으므로 포인터 제거.
+}
+
+void	load_texture(t_info *info)
+{
+	t_img	img;
+
+	load_image(info, info->texture[0], "textures/eagle.xpm", &img);
+	load_image(info, info->texture[1], "textures/redbrick.xpm", &img);
+	load_image(info, info->texture[2], "textures/purplestone.xpm", &img);
+	load_image(info, info->texture[3], "textures/greystone.xpm", &img);
+	load_image(info, info->texture[4], "textures/bluestone.xpm", &img);
+	load_image(info, info->texture[5], "textures/mossy.xpm", &img);
+	load_image(info, info->texture[6], "textures/wood.xpm", &img);
+	load_image(info, info->texture[7], "textures/colorstone.xpm", &img);
 }
 
 void	calc(t_info *info)
@@ -305,6 +339,7 @@ void	calc(t_info *info)
 		// win 높이를 사용해서 벽의 높이를 구함
 		int lineHeight = (int)(WIN_HEIGHT / perpWallDist); //거리에 반비례.
 
+		//텍스쳐의 시작 위치로 활용가능.
 		int drawStart = -lineHeight / 2 + WIN_HEIGHT / 2;
 		if(drawStart < 0) // 시작 위치가 음수일경우 0부터 그리도록.
 			drawStart = 0;
@@ -312,23 +347,41 @@ void	calc(t_info *info)
 		if(drawEnd >= WIN_HEIGHT) // 높이가 초과될경우 화면의 가장 끝에 보이도록.
 			drawEnd = WIN_HEIGHT - 1;
 
-		int	color;
-		if (worldMap[mapY][mapX] == 1)
-			color = 0xFF0000;
-		else if (worldMap[mapY][mapX] == 2)
-			color = 0x00FF00;
-		else if (worldMap[mapY][mapX] == 3)
-			color = 0x0000FF;
-		else if (worldMap[mapY][mapX] == 4)
-			color = 0xFFFFFF;
+		// 0번째 텍스쳐도 0, 벽이 없는것도 0 => 1이면 texNum이 0 이되어 텍스쳐 종류를 가르킴.
+		int texNum = worldMap[mapX][mapY] - 1;
+
+		// 벽과 double  거리
+		double wallX;
+		if (side == 0)
+			wallX = info->pos.y + perpWallDist * ray_dir.y;
 		else
-			color = 0xFFFF00;
+			wallX = info->pos.x + perpWallDist * ray_dir.x;
+		wallX -= floor(wallX);
 
-		//색상 값 조절.
-		if (side == 1)
-			color = color / 2;
+		// x coordinate on the texture
+		// 벽과 거리와 텍스쳐 두께를 이용해 texX를 구함.
+		int texX = (int)(wallX * (double)texWidth);
+		if (side == 0 && ray_dir.x > 0)
+			texX = texWidth - texX - 1;
+		if (side == 1 && ray_dir.y < 0)
+			texX = texWidth - texX - 1;
 
-		verLine(info, x, drawStart, drawEnd, color);
+		// How much to increase the texture coordinate perscreen pixel
+		double step_ = 1.0 * texHeight / lineHeight; // 2.0으로 할경우 벽이 가로 두개로 나뉘어짐.
+
+		//텍스쳐의 위치.
+		double texPos = (drawStart - WIN_HEIGHT / 2 + lineHeight / 2) * step_;
+		for (int y = drawStart; y < drawEnd; y++) // y좌표를 그린다.
+		{
+			// Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
+			int texY = (int)texPos & (texHeight - 1);
+			texPos += step_;
+			int color = info->texture[texNum][texHeight * texY + texX]; // 위치에 맞는 데이터를 가져옴.
+			// make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
+			if (side == 1) // y벽면에 부딪히는경우. 색을 어둡게.
+				color = (color >> 1) & 8355711;
+			info->buf[y][x] = color;
+		}
 	}
 }
 
@@ -387,6 +440,18 @@ void move(t_info *info)
 	}
 }
 
+void	draw(t_info *info)
+{
+	for (int y = 0; y < WIN_HEIGHT; y++)
+	{
+		for (int x = 0; x < WIN_WIDTH; x++)
+		{
+			info->img.data[y * WIN_WIDTH + x] = info->buf[y][x];
+		}
+	}
+	mlx_put_image_to_window(info->mlx_ptr, info->win, info->img.img_ptr, 0, 0);
+}
+
 
 int main_loop(t_info *info)
 {
@@ -400,6 +465,8 @@ int main_loop(t_info *info)
 
 
 	calc(info);
+	draw(info);
+
 	//update 로직. 키가 업데이트 되었을때 화면을 바꿔야함.
 	//		update_screen(game);
 	//		update_window(game);
@@ -409,12 +476,37 @@ int main_loop(t_info *info)
 int			main(void)
 {
 	t_info	info;
-	int		count_w;
-	int		count_h;
-	t_img	img;
 
 	map_init(); //맵 초기화
 	init_info(&info);
+
+	//텍스쳐가 스크린 사이즈 버퍼. => 버퍼에 저장해놓고 그림.
+	for (int i = 0; i < WIN_HEIGHT; i++)
+	{
+		for (int j = 0; j < WIN_WIDTH; j++)
+		{
+			info.buf[i][j] = 0;
+		}
+	}
+
+	// 텍스쳐 사이즈 생성. 동적할당. todo free
+	if (!(info.texture = (int **)malloc(sizeof(int *) * 8)))
+		return (-1);
+	for (int i = 0; i < 8; i++)
+	{
+		if (!(info.texture[i] = (int *)malloc(sizeof(int) * (texHeight * texWidth))))
+			return (-1);
+	}
+	for (int i = 0; i < 8; i++)
+	{
+		for (int j = 0; j < texHeight * texWidth; j++)
+		{
+			info.texture[i][j] = 0;
+		}
+	}
+	load_texture(&info);
+	info.img.img_ptr = mlx_new_image(info.mlx_ptr, WIN_WIDTH, WIN_HEIGHT);
+	info.img.data = (int *)mlx_get_data_addr(info.img.img_ptr, &info.img.bpp, &info.img.size_line, &info.img.endian);
 
 	//키 이벤트, 키 함수.
 	mlx_hook(info.win, X_EVENT_KEY_PRESS, 0, &key_press, &info);
@@ -440,8 +532,3 @@ void map_validation() {
 	//맵에 대한 검증.
 
 }
-
-
-
-
-
