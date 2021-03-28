@@ -13,75 +13,12 @@ int main_loop();
 
 int key_release();
 
-# define WIN_WIDTH 800
-# define WIN_HEIGHT 600
-
-#define mapWidth 24
-#define mapHeight 24
-
-#define texWidth 64
-#define texHeight 64
 
 
-typedef struct		s_xy {
-	double x;
-	double y;
-}					t_xy;
 
-typedef struct		s_key {
-	int w;
-	int a;
-	int s;
-	int d;
-}					t_key;
 
-typedef struct	s_img
-{
-	void		*img_ptr;
-	int			*data;
-	// 커스텀. 폭, 높이
-	int			width;
-	int			height;
+void draw_wall(t_info *info, t_ray *ray, int x);
 
-	//You don't need to understand the 3 values below.
-	//After declaration, it will be automatically initialized when passed to mlx_get_data_addr function.
-	//아래 3개 값은 이해 안해도 사용하는데 지장이 없음.
-	//선언한뒤 함수의 인자로만 잘 넣어주면 알아서 정보를 받아나옴.
-	int			size_line;
-	int			bpp;
-	int			endian;
-}				t_img;
-
-typedef struct		s_info
-{
-	void			*mlx_ptr;
-	void			*win;
-	t_xy	dir; //방향
-	t_xy	pos; //위치
-	t_xy	plane; //오른쪽 blue 끝점.
-
-	// 키보드.
-	t_key	key;
-
-	t_xy	move; //움직임? => 키보드 눌릴 시 사용.
-	t_xy	x_move; // x축 움직임? => 키보드 눌릴 시 사용. 뭘까
-
-	double	move_speed;
-	double	rotate_speed; // 회전시 필요.
-
-	t_img	img;
-	int		buf[WIN_HEIGHT][WIN_WIDTH];
-	int		**texture;
-
-}					t_info;
-
-typedef struct	s_camera
-{
-	t_xy	pos;
-	t_xy	dir;
-	t_xy	x_dir;
-	t_xy	plane;
-}				t_camera;
 
 void exit_game()
 {
@@ -260,129 +197,67 @@ void	load_texture(t_info *info)
 	load_image(info, info->texture[7], "textures/colorstone.xpm", &img);
 }
 
-void	calc(t_info *info)
+void	calc_ray(t_info *info, t_ray *ray, int x)
 {
-	int x;
+	double K = 2 * x / (double)WIN_WIDTH - 1; // -1 ~ 1 로 정규화. 0 일떄 -1 / x가 최대값이면 2 - 1 = 1
 
-	x = -1; // 0 ~ 최대폭 까지
-	// init ray
-	while (++x < WIN_WIDTH)
+	//ray의 방향. plane의 k배수
+	set_xy(&ray->ray_dir,info->dir.x + info->plane.x * K, info->dir.y + info->plane.y * K);
+
+	//내림을 통해 내 현재 광선 위치.
+	set_xy(&ray->map, (int)info->pos.x, (int)info->pos.y);
+
+	set_xy(&ray->delta_dist, fabs(1. / ray->ray_dir.x), fabs(1. / ray->ray_dir.y));
+
+	t_xy side_dist; // 맨처음만나는 x, y값의 거리
+
+	if (ray->ray_dir.x < 0) // 왼쪽 방향으로 쐇다.
 	{
-		double K = 2 * x / (double)WIN_WIDTH - 1; // -1 ~ 1 로 정규화. 0 일떄 -1 / x가 최대값이면 2 - 1 = 1
-
-		//ray의 방향. plane의 k배수
-		t_xy ray_dir;
-		set_xy(&ray_dir,info->dir.x + info->plane.x * K, info->dir.y + info->plane.y * K);
-
-		//내림을 통해 내 현재 광선 위치.
-		int mapX = (int)info->pos.x;
-		int mapY = (int)info->pos.y;
-
-		t_xy delta_dist; // 1칸의 광선의 이동거리. delta_dist.x x한칸당 이동거리. / delta_dist.y y한칸당 이동거리
-		set_xy(&delta_dist, fabs(1. / ray_dir.x), fabs(1. / ray_dir.y));
-
-		t_xy side_dist; // 맨처음만나는 x, y값의 거리
-
-		// 밫의 방향을 어디로 쐇는지 기록. 오른쪽? 왼쪽? 아래? 위? //칸을 이동하는 방향.
-		t_xy step;
-		if (ray_dir.x < 0) // 왼쪽 방향으로 쐇다.
-		{
-			step.x = -1; //x가 음의 방향인가?
-			side_dist.x = (info->pos.x - mapX) * delta_dist.x; //플레이어 - 맵.
-		}
-		else
-		{
-			step.x = 1; //x가 양의 방향인가?
-			side_dist.x = (mapX + 1.0 - info->pos.x) * delta_dist.x;
-		}
-		if (ray_dir.y < 0)
-		{
-			step.y = -1;
-			side_dist.y = (info->pos.y - mapY) * delta_dist.y;
-		}
-		else
-		{
-			step.y = 1;
-			side_dist.y = (mapY + 1.0 - info->pos.y) * delta_dist.y;
-		}
-
-		//DDA 알고리즘
-		int hit = 0;
-		int side; //위아래선이냐, 오른쪽 왼쪽 선이냐
-		//칸수 체크하면서 hit되었는지 봄.
-		while (hit == 0)
-		{
-			// y가 더 가파른 경우. y의 증가폭이 큰경우. x를 1씩 증가시켜야함.
-			if(side_dist.x < side_dist.y)
-			{
-				side_dist.x += delta_dist.x; //다음번 x선을 만날떄까지 길이를 계속 더해줌.
-				mapX += (int)step.x; //오른쪽으로 x가 움직이는지 왼쪽으로 움직이는지. 기울기가 음수 양수
-				side = 0; //세로선과 부딪힘.
-			}
-			else {
-				side_dist.y += delta_dist.y; //다음번 y선을 만날떄까지 길이를 계속 더해줌
-				mapY += (int)step.y;//ray 오른쪽으로 왼쪽으로 움직이는지. 기울기가 음수 양수
-				side = 1; // 가로선과 부딪힘.
-			}
-			if (worldMap[mapX][mapY] > 0) // 벽은 1로 표현되어짐. todo
-				hit = 1;
-		}
-
-		//레이에서 hit되었을때 카메라 평면과의 수선의 발의 길이. 둥글게 보임.
-		double perpWallDist;
-
-		if (side == 0)
-			perpWallDist = (mapX - info->pos.x + (1 - step.x) / 2) / ray_dir.x; //step은 1
-		else
-			perpWallDist = (mapY - info->pos.y + (1 - step.y) / 2) / ray_dir.y;
-
-		// win 높이를 사용해서 벽의 높이를 구함
-		int lineHeight = (int)(WIN_HEIGHT / perpWallDist); //거리에 반비례.
-
-		//텍스쳐의 시작 위치로 활용가능.
-		int drawStart = -lineHeight / 2 + WIN_HEIGHT / 2;
-		if(drawStart < 0) // 시작 위치가 음수일경우 0부터 그리도록.
-			drawStart = 0;
-		int drawEnd = lineHeight / 2 + WIN_HEIGHT / 2; // 끝나는 높이 좌표.
-		if(drawEnd >= WIN_HEIGHT) // 높이가 초과될경우 화면의 가장 끝에 보이도록.
-			drawEnd = WIN_HEIGHT - 1;
-
-		// 0번째 텍스쳐도 0, 벽이 없는것도 0 => 1이면 texNum이 0 이되어 텍스쳐 종류를 가르킴.
-		int texNum = worldMap[mapX][mapY] - 1;
-
-		// 벽과 double  거리
-		double wallX;
-		if (side == 0)
-			wallX = info->pos.y + perpWallDist * ray_dir.y;
-		else
-			wallX = info->pos.x + perpWallDist * ray_dir.x;
-		wallX -= floor(wallX);
-
-		// x coordinate on the texture
-		// 벽과 거리와 텍스쳐 두께를 이용해 texX를 구함.
-		int texX = (int)(wallX * (double)texWidth);
-		if (side == 0 && ray_dir.x > 0)
-			texX = texWidth - texX - 1;
-		if (side == 1 && ray_dir.y < 0)
-			texX = texWidth - texX - 1;
-
-		// How much to increase the texture coordinate perscreen pixel
-		double step_ = 1.0 * texHeight / lineHeight; // 2.0으로 할경우 벽이 가로 두개로 나뉘어짐.
-
-		//텍스쳐의 위치.
-		double texPos = (drawStart - WIN_HEIGHT / 2 + lineHeight / 2) * step_;
-		for (int y = drawStart; y < drawEnd; y++) // y좌표를 그린다.
-		{
-			// Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
-			int texY = (int)texPos & (texHeight - 1);
-			texPos += step_;
-			int color = info->texture[texNum][texHeight * texY + texX]; // 위치에 맞는 데이터를 가져옴.
-			// make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
-			if (side == 1) // y벽면에 부딪히는경우. 색을 어둡게.
-				color = (color >> 1) & 8355711;
-			info->buf[y][x] = color;
-		}
+		ray->step.x = -1; //x가 음의 방향인가?
+		side_dist.x = (info->pos.x - ray->map.x) * ray->delta_dist.x; //플레이어 - 맵.
 	}
+	else
+	{
+		ray->step.x = 1; //x가 양의 방향인가?
+		side_dist.x = (ray->map.x + 1.0 - info->pos.x) * ray->delta_dist.x;
+	}
+	if (ray->ray_dir.y < 0)
+	{
+		ray->step.y = -1;
+		side_dist.y = (info->pos.y - ray->map.y) * ray->delta_dist.y;
+	}
+	else
+	{
+		ray->step.y = 1;
+		side_dist.y = (ray->map.y + 1.0 - info->pos.y) * ray->delta_dist.y;
+	}
+
+	//DDA 알고리즘
+	int hit = 0;
+	//칸수 체크하면서 hit되었는지 봄.
+	while (hit == 0)
+	{
+		// y가 더 가파른 경우. y의 증가폭이 큰경우. x를 1씩 증가시켜야함.
+		if(side_dist.x < side_dist.y)
+		{
+			side_dist.x += ray->delta_dist.x; //다음번 x선을 만날떄까지 길이를 계속 더해줌.
+			ray->map.x += (int)ray->step.x; //오른쪽으로 x가 움직이는지 왼쪽으로 움직이는지. 기울기가 음수 양수
+			ray->side = 0; //세로선과 부딪힘.  //위아래선이냐, 오른쪽 왼쪽 선이냐
+		}
+		else {
+			side_dist.y += ray->delta_dist.y; //다음번 y선을 만날떄까지 길이를 계속 더해줌
+			ray->map.y += (int)ray->step.y;//ray 오른쪽으로 왼쪽으로 움직이는지. 기울기가 음수 양수
+			ray->side = 1; // 가로선과 부딪힘.
+		}
+		if (worldMap[(int)ray->map.x][(int)ray->map.y] > 0) // 벽은 1로 표현되어짐. todo
+			hit = 1;
+	}
+
+	//레이에서 hit되었을때 카메라 평면과의 수선의 발의 길이. 둥글게 보임.
+	if (ray->side == 0)
+		ray->perp_wall_dist = (ray->map.x - info->pos.x + (1 - ray->step.x) / 2) / ray->ray_dir.x; //step은 1
+	else
+		ray->perp_wall_dist = (ray->map.y - info->pos.y + (1 - ray->step.y) / 2) / ray->ray_dir.y;
 }
 
 //key_event.c todo
@@ -440,7 +315,7 @@ void move(t_info *info)
 	}
 }
 
-void	draw(t_info *info)
+void	put_draw(t_info *info)
 {
 	for (int y = 0; y < WIN_HEIGHT; y++)
 	{
@@ -462,15 +337,72 @@ int main_loop(t_info *info)
 	else if (info->key.w || info->key.s)
 		move(info);
 
+	t_ray	ray;
 
+	int x;
+	x = -1; // 0 ~ 최대폭 까지
+	// init ray
+	while (++x < WIN_WIDTH)
+	{
+		calc_ray(info, &ray, x);
+		draw_wall(info, &ray, x);
+	}
 
-	calc(info);
-	draw(info);
+	put_draw(info);
 
 	//update 로직. 키가 업데이트 되었을때 화면을 바꿔야함.
 	//		update_screen(game);
 	//		update_window(game);
 	return (0);
+}
+
+void draw_wall(t_info *info, t_ray *ray, int x) {
+// win 높이를 사용해서 벽의 높이를 구함
+	int lineHeight = (int)(WIN_HEIGHT / ray->perp_wall_dist); //거리에 반비례.
+
+	//텍스쳐의 시작 위치로 활용가능.
+	int drawStart = -lineHeight / 2 + WIN_HEIGHT / 2;
+	if(drawStart < 0) // 시작 위치가 음수일경우 0부터 그리도록.
+		drawStart = 0;
+	int drawEnd = lineHeight / 2 + WIN_HEIGHT / 2; // 끝나는 높이 좌표.
+	if(drawEnd >= WIN_HEIGHT) // 높이가 초과될경우 화면의 가장 끝에 보이도록.
+		drawEnd = WIN_HEIGHT - 1;
+
+	// 0번째 텍스쳐도 0, 벽이 없는것도 0 => 1이면 texNum이 0 이되어 텍스쳐 종류를 가르킴.
+	int texNum = worldMap[(int)ray->map.x][(int)ray->map.y] - 1;
+
+	// 벽과 double  거리
+	double wallX;
+	if (ray->side == 0)
+		wallX = info->pos.y + ray->perp_wall_dist * ray->ray_dir.y;
+	else
+		wallX = info->pos.x + ray->perp_wall_dist * ray->ray_dir.x;
+	wallX -= floor(wallX);
+
+	// x coordinate on the texture
+	// 벽과 거리와 텍스쳐 두께를 이용해 texX를 구함.
+	int texX = (int)(wallX * (double)texWidth);
+	if (ray->side == 0 && ray->ray_dir.x > 0)
+		texX = texWidth - texX - 1;
+	if (ray->side == 1 && ray->ray_dir.y < 0)
+		texX = texWidth - texX - 1;
+
+	// How much to increase the texture coordinate perscreen pixel
+	double step_ = 1.0 * texHeight / lineHeight; // 2.0으로 할경우 벽이 가로 두개로 나뉘어짐.
+
+	//텍스쳐의 위치.
+	double texPos = (drawStart - WIN_HEIGHT / 2 + lineHeight / 2) * step_;
+	for (int y = drawStart; y < drawEnd; y++) // y좌표를 그린다.
+	{
+		// Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
+		int texY = (int)texPos & (texHeight - 1);
+		texPos += step_;
+		int color = info->texture[texNum][texHeight * texY + texX]; // 위치에 맞는 데이터를 가져옴.
+		// make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
+		if (ray->side == 1) // y벽면에 부딪히는경우. 색을 어둡게.
+			color = (color >> 1) & 8355711;
+		info->buf[y][x] = color;
+	}
 }
 
 int			main(void)
