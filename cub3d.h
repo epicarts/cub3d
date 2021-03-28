@@ -100,6 +100,8 @@ typedef struct		s_info
 	int		buf[WIN_HEIGHT][WIN_WIDTH];
 	int		**texture;
 
+	int		floor_color;
+	int		ceil_color;
 }					t_info;
 
 typedef struct	s_camera

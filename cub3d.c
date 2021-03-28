@@ -114,6 +114,19 @@ void set_xy(t_xy *xy, double x, double y)
 //t_xy	rotate; // 회전시 필요
 
 
+int rgb_to_int(int r, int g, int b)
+{
+	int result;
+
+	result = 0;
+	result = result | (r << 16);
+	result = result | (g << 8);
+	result = result | (b);
+
+	return result;
+}
+
+
 void init_info(t_info *info)
 {
 	//mlx초기화, 윈도우초기화
@@ -139,6 +152,9 @@ void init_info(t_info *info)
 	info->key.s = 0;
 	info->key.d = 0;
 
+	//벽, 땅 색깔 초기화
+	info->ceil_color = rgb_to_int(120,120,0);
+	info->floor_color = rgb_to_int(0,120,120);
 }
 
 //x의 위치에서 세로로쭉 pixel을 하나씩 찍어주는 함수.
@@ -327,6 +343,21 @@ void	put_draw(t_info *info)
 	mlx_put_image_to_window(info->mlx_ptr, info->win, info->img.img_ptr, 0, 0);
 }
 
+void draw_floor_ceiling(t_info *info, t_ray *ray, int x)
+{
+	//255, 255, 255
+	int y;
+
+	y = -1;
+	while (++y < WIN_HEIGHT)
+	{
+		//바닥.
+		info->buf[y][x] = info->floor_color;
+		//천장
+		info->buf[WIN_HEIGHT - y - 1][x] = info->ceil_color;
+	}
+}
+
 
 int main_loop(t_info *info)
 {
@@ -338,14 +369,14 @@ int main_loop(t_info *info)
 		move(info);
 
 	t_ray	ray;
-
 	int x;
+
 	x = -1; // 0 ~ 최대폭 까지
-	// init ray
 	while (++x < WIN_WIDTH)
 	{
-		calc_ray(info, &ray, x);
-		draw_wall(info, &ray, x);
+		draw_floor_ceiling(info, &ray, x);
+		calc_ray(info, &ray, x);	// init ray
+		draw_wall(info, &ray, x); // 벽 그리기.
 	}
 
 	put_draw(info);
