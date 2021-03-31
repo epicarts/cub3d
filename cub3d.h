@@ -9,6 +9,7 @@
 # include <stdlib.h>
 # include <limits.h>
 # include <stdio.h>
+# include <fcntl.h>
 
 #include "mlx/mlx.h"
 
@@ -39,6 +40,10 @@
 #define texWidth 64
 #define texHeight 64
 
+#define NO 0
+#define SO 1
+#define WE 2
+#define EA 3
 
 typedef struct		s_xy {
 	double x;
@@ -53,6 +58,18 @@ typedef struct 	s_ray {
 	t_xy	delta_dist; // 1칸의 광선의 이동거리. delta_dist.x x한칸당 이동거리. / delta_dist.y y한칸당 이동거리
 	t_xy	map;
 }				t_ray;
+
+typedef struct s_read_check
+{
+	int	r;
+	int	no;
+	int	so;
+	int	we;
+	int ea;
+	int	s;
+	int	f;
+	int	c;
+}				t_read_check;
 
 
 typedef struct		s_key {
@@ -79,6 +96,20 @@ typedef struct	s_img
 	int			endian;
 }				t_img;
 
+typedef struct s_texture
+{
+	char	*texture_path; //저장경로.
+	int 	height;
+	int		width;
+} t_texture;
+
+typedef struct s_color
+{
+	int red;
+	int green;
+	int blue;
+} t_color;
+
 typedef struct		s_info
 {
 	void			*mlx_ptr;
@@ -98,10 +129,20 @@ typedef struct		s_info
 
 	t_img	img;
 	int		buf[WIN_HEIGHT][WIN_WIDTH];
-	int		**texture;
+
+	t_texture texture[4];
+	t_texture s_texture;
+	int		**textures;
 
 	int		floor_color;
 	int		ceil_color;
+
+	t_read_check read_check;
+
+	int		**world_map;
+
+	int win_x;
+	int win_y;
 }					t_info;
 
 typedef struct	s_camera
@@ -113,8 +154,28 @@ typedef struct	s_camera
 }				t_camera;
 
 
+# include <unistd.h>
+# include <stdlib.h>
+# include <limits.h>
 
+# ifndef BUFFER_SIZE
+#  define BUFFER_SIZE 1024
+# endif
+
+int		get_next_line(int fd, char **line);
+char	*ft_strjoin(char const *s1, char const *s2);
+char	*ft_strdup(const char *s1);
+size_t	ft_strlen(const char *s);
 int		cub3d(int fd, char **line);
+size_t				ft_strlcpy(char *dst, const char *src, size_t dstsize);
+char				**ft_split(char const *s, char c);
+int		ft_strcmp(char *s1, char *s2);
+void map_init(t_info *info, char *map_path);
+int		ft_atoi(const char *str);
+int		ft_isdigit(int c);
 
+void read_map(t_info *info, char *map_path);
 
+int		init_identifier(t_info *info, int fd);
+int		init_map(t_info *info, int fd);
 #endif

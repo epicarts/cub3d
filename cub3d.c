@@ -3,9 +3,8 @@
 //
 
 #include <math.h>
+#include <fcntl.h>
 #include "cub3d.h"
-
-void map_init();
 
 void map_validation();
 
@@ -114,17 +113,6 @@ void set_xy(t_xy *xy, double x, double y)
 //t_xy	rotate; // 회전시 필요
 
 
-int rgb_to_int(int r, int g, int b)
-{
-	int result;
-
-	result = 0;
-	result = result | (r << 16);
-	result = result | (g << 8);
-	result = result | (b);
-
-	return result;
-}
 
 
 void init_info(t_info *info)
@@ -152,9 +140,9 @@ void init_info(t_info *info)
 	info->key.s = 0;
 	info->key.d = 0;
 
-	//벽, 땅 색깔 초기화
-	info->ceil_color = rgb_to_int(120,120,0);
-	info->floor_color = rgb_to_int(0,120,120);
+//	//벽, 땅 색깔 초기화
+//	info->ceil_color = rgb_to_int(120,120,0);
+//	info->floor_color = rgb_to_int(0,120,120);
 }
 
 //x의 위치에서 세로로쭉 pixel을 하나씩 찍어주는 함수.
@@ -170,48 +158,34 @@ void	verLine(t_info *info, int x, int y1, int y2, int color)
 	}
 }
 
-// 맵 체크. 리턴 1
-int map_check()
-{
 
-	//# define IN_MAP(p, c)		(CHECK_TOP(p) && CHECK_BOT(p, c))
-
-	//# define CHECK_TOP(p)		(FINT(p.x) >= 0 && FINT(p.y) >= 0)
-	//# define CHECK_BOT(p, c)	(FINT(p.x) < (c).columns && FINT(p.y) < (c).rows)
-
-	// # define FINT(x)			((int)floor(x))
-
-	//# define MAP(p, c) 			(c).map[(FINT(p.y) * (c).columns) + FINT(p.x)]
-	//# define MAP_XY(x, y, c) 	(c).map[(FINT(y) * (c).columns) + FINT(x)]
-}
-
-void	load_image(t_info *info, int *texture, char *path, t_img *img)
-{
-	img->img_ptr = mlx_xpm_file_to_image(info->mlx_ptr, path, &img->width, &img->height);
-	img->data = (int *)mlx_get_data_addr(img->img_ptr, &img->bpp, &img->size_line, &img->endian);
-	for (int y = 0; y < img->height; y++)
-	{
-		for (int x = 0; x < img->width; x++)
-		{
-			texture[img->width * y + x] = img->data[img->width * y + x];
-		}
-	}
-	mlx_destroy_image(info->mlx_ptr, img->img_ptr); // 배열에 저장했으므로 포인터 제거.
-}
-
-void	load_texture(t_info *info)
-{
-	t_img	img;
-
-	load_image(info, info->texture[0], "textures/eagle.xpm", &img);
-	load_image(info, info->texture[1], "textures/redbrick.xpm", &img);
-	load_image(info, info->texture[2], "textures/purplestone.xpm", &img);
-	load_image(info, info->texture[3], "textures/greystone.xpm", &img);
-	load_image(info, info->texture[4], "textures/bluestone.xpm", &img);
-	load_image(info, info->texture[5], "textures/mossy.xpm", &img);
-	load_image(info, info->texture[6], "textures/wood.xpm", &img);
-	load_image(info, info->texture[7], "textures/colorstone.xpm", &img);
-}
+//void	load_image(t_info *info, int *textures, char *path, t_img *img)
+//{
+//	img->img_ptr = mlx_xpm_file_to_image(info->mlx_ptr, path, &img->width, &img->height);
+//	img->data = (int *)mlx_get_data_addr(img->img_ptr, &img->bpp, &img->size_line, &img->endian);
+//	for (int y = 0; y < img->height; y++)
+//	{
+//		for (int x = 0; x < img->width; x++)
+//		{
+//			textures[img->width * y + x] = img->data[img->width * y + x];
+//		}
+//	}
+//	mlx_destroy_image(info->mlx_ptr, img->img_ptr); // 배열에 저장했으므로 포인터 제거.
+//}
+//
+//void	load_textures(t_info *info)
+//{
+//	t_img	img;
+//
+//	load_image(info, info->textures[0], "textures/eagle.xpm", &img); // 동
+//	load_image(info, info->textures[1], "textures/redbrick.xpm", &img); //서
+//	load_image(info, info->textures[2], "textures/purplestone.xpm", &img); //남
+//	load_image(info, info->textures[3], "textures/greystone.xpm", &img); // 북
+//	load_image(info, info->textures[4], "textures/bluestone.xpm", &img); // sprite?
+//	load_image(info, info->textures[5], "textures/mossy.xpm", &img);
+//	load_image(info, info->textures[6], "textures/wood.xpm", &img);
+//	load_image(info, info->textures[7], "textures/colorstone.xpm", &img);
+//}
 
 void	calc_ray(t_info *info, t_ray *ray, int x)
 {
@@ -363,10 +337,10 @@ int main_loop(t_info *info)
 {
 
 	//keyboard rotate
+	if (info->key.w || info->key.s)
+		move(info);
 	if (info->key.a || info->key.d)
 		rotate(info);
-	else if (info->key.w || info->key.s)
-		move(info);
 
 	t_ray	ray;
 	int x;
@@ -428,7 +402,7 @@ void draw_wall(t_info *info, t_ray *ray, int x) {
 		// Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
 		int texY = (int)texPos & (texHeight - 1);
 		texPos += step_;
-		int color = info->texture[texNum][texHeight * texY + texX]; // 위치에 맞는 데이터를 가져옴.
+		int color = info->textures[texNum][texHeight * texY + texX]; // 위치에 맞는 데이터를 가져옴.
 		// make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
 		if (ray->side == 1) // y벽면에 부딪히는경우. 색을 어둡게.
 			color = (color >> 1) & 8355711;
@@ -436,62 +410,79 @@ void draw_wall(t_info *info, t_ray *ray, int x) {
 	}
 }
 
-int			main(void)
+int			main(int argc, char *argv[])
 {
 	t_info	info;
 
-	map_init(); //맵 초기화
-	init_info(&info);
+	// 인자가 두개 이상왔는데, save가 옵션이 아닐경우. 종료
+	if (argc >= 3 && ft_strcmp(argv[2] , "--save")) //2번쨰 인자가 올경우
+		exit(0);
+	if (argc == 1) // 인자가 아무것도 없으면 종료.
+		exit(0);
+	//map_init(&info, argv[1]); //맵 초기화
+	read_map(&info, "./map.cub");
+	/*
 
-	//텍스쳐가 스크린 사이즈 버퍼. => 버퍼에 저장해놓고 그림.
-	for (int i = 0; i < WIN_HEIGHT; i++)
-	{
-		for (int j = 0; j < WIN_WIDTH; j++)
-		{
-			info.buf[i][j] = 0;
-		}
-	}
+init_info(&info);
 
-	// 텍스쳐 사이즈 생성. 동적할당. todo free
-	if (!(info.texture = (int **)malloc(sizeof(int *) * 8)))
-		return (-1);
-	for (int i = 0; i < 8; i++)
-	{
-		if (!(info.texture[i] = (int *)malloc(sizeof(int) * (texHeight * texWidth))))
-			return (-1);
-	}
-	for (int i = 0; i < 8; i++)
-	{
-		for (int j = 0; j < texHeight * texWidth; j++)
-		{
-			info.texture[i][j] = 0;
-		}
-	}
-	load_texture(&info);
-	info.img.img_ptr = mlx_new_image(info.mlx_ptr, WIN_WIDTH, WIN_HEIGHT);
-	info.img.data = (int *)mlx_get_data_addr(info.img.img_ptr, &info.img.bpp, &info.img.size_line, &info.img.endian);
+//텍스쳐가 스크린 사이즈 버퍼. => 버퍼에 저장해놓고 그림.
+for (int i = 0; i < WIN_HEIGHT; i++)
+{
+for (int j = 0; j < WIN_WIDTH; j++)
+{
+	info.buf[i][j] = 0;
+}
+}
 
-	//키 이벤트, 키 함수.
-	mlx_hook(info.win, X_EVENT_KEY_PRESS, 0, &key_press, &info);
-	mlx_hook(info.win, X_EVENT_KEY_release, 0, &key_release, &info);
+// 텍스쳐 사이즈 생성. 동적할당. todo free
+if (!(info.texture = (int **)malloc(sizeof(int *) * 8)))
+return (-1);
+for (int i = 0; i < 8; i++)
+{
+if (!(info.texture[i] = (int *)malloc(sizeof(int) * (texHeight * texWidth))))
+	return (-1);
+}
+for (int i = 0; i < 8; i++)
+{
+for (int j = 0; j < texHeight * texWidth; j++)
+{
+	info.texture[i][j] = 0;
+}
+}
 
-	//
-	mlx_loop_hook(info.mlx_ptr, &main_loop, &info);
+load_texture(&info);
+info.img.img_ptr = mlx_new_image(info.mlx_ptr, WIN_WIDTH, WIN_HEIGHT);
+info.img.data = (int *)mlx_get_data_addr(info.img.img_ptr, &info.img.bpp, &info.img.size_line, &info.img.endian);
 
-	// 시작.
-	mlx_loop(info.mlx_ptr);
+//키 이벤트, 키 함수.
+mlx_hook(info.win, X_EVENT_KEY_PRESS, 0, &key_press, &info);
+mlx_hook(info.win, X_EVENT_KEY_release, 0, &key_release, &info);
+
+//
+mlx_loop_hook(info.mlx_ptr, &main_loop, &info);
+
+// 시작.
+mlx_loop(info.mlx_ptr);
+*/
 	return (0);
 }
 
 
 
-void map_init() {
-	//맵초기화.
-
-	map_validation(); //맵에 대한 검증.
-}
-
-void map_validation() {
+//dfs 로 유효성 검사void map_validation() {
 	//맵에 대한 검증.
 
-}
+//}
+
+//https://harm-smits.github.io/42docs/libs/minilibx/prototypes.html#mlx_get_screen_size
+//int   *ft_screen_check(t_all *s)
+//{
+//	int max_x;
+//	int max_y;
+//	mlx_get_screen_size(s->mlx.ptr, &max_x, &max_y);
+//	if (max_x < s->win.x)
+//		s->win.x = max_x;
+//	if (max_y < s->win.y)
+//		s->win.y = max_y;
+//	return (mlx_new_window(s->mlx.ptr, s->win.x, s->win.y, “cub3D”));
+//}

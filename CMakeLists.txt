@@ -7,7 +7,17 @@ link_directories(./mlx)
 
 add_executable(
         cub3d
-        example/exam01.c
-        cub3d.c cub3d.h)
+        cub3d.c cub3d.h
+        utils/ft_strlcpy.c
+        utils/ft_split.c
+        utils/ft_strcmp.c
+        gnl/get_next_line.c
+        gnl/get_next_line_utils.c
+        utils/ft_atoi.c
+        utils/ft_isdigit.c
+        config/init_identifier.c
+        config/config.c
+        config/init_map.c
+)
 
 target_link_libraries(cub3d "-framework AppKit" "-framework OpenGL" "mlx")
