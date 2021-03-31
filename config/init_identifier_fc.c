@@ -38,6 +38,14 @@ int set_color(t_info *info, t_color *color, char **list, char **c_list)
 	return (1);
 }
 
+void identifier_fc_check(t_info *info, char** list)
+{
+	if (!ft_strcmp(list[0], "F"))
+		info->read_check.f = 1;
+	else if (!ft_strcmp(list[0], "c"))
+		info->read_check.c = 1;
+}
+
 int identifier_fc(t_info *info, char** list)
 {
 	t_color	color;

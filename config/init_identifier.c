@@ -17,7 +17,7 @@ int is_identifier_in_line(t_info *info, char *line)
 	else if(!ft_strcmp(list[0], "R") && identifier_r(info, list)) //R
 		info->read_check.r = 1;
 	else if((!ft_strcmp(list[0], "F") || !ft_strcmp(list[0], "C")) && identifier_fc(info, list)) //F, C, 벽, 천장
-		;
+		identifier_fc_check(info, list);
 	else // 잘못된 맵파일.
 		result = 0;
 	// todo leak check

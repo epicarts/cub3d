@@ -180,6 +180,7 @@ void read_map(t_info *info, char *map_path);
 
 int		init_identifier(t_info *info, int fd);
 int identifier_fc(t_info *info, char** list);
+void identifier_fc_check(t_info *info, char** list);
 void identifier_texture_check(t_info *info, char** list);
 int identifier_texture(t_info *info, char** list);
 int		identifier_r(t_info *info, char** list);
