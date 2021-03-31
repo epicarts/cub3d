@@ -15,9 +15,15 @@ add_executable(
         gnl/get_next_line_utils.c
         utils/ft_atoi.c
         utils/ft_isdigit.c
+        utils/free_2d_malloc.c
+        utils/digit_in_str.c
+        config/init_identifier_fc.c
         config/init_identifier.c
+        config/init_identifier_texture.c
         config/config.c
         config/init_map.c
+        config/init_identifier_fc.c
+        config/identifier_r.c
 )
 
 target_link_libraries(cub3d "-framework AppKit" "-framework OpenGL" "mlx")

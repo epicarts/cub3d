@@ -170,12 +170,21 @@ int		cub3d(int fd, char **line);
 size_t				ft_strlcpy(char *dst, const char *src, size_t dstsize);
 char				**ft_split(char const *s, char c);
 int		ft_strcmp(char *s1, char *s2);
-void map_init(t_info *info, char *map_path);
+void 	map_init(t_info *info, char *map_path);
 int		ft_atoi(const char *str);
 int		ft_isdigit(int c);
+int digit_in_str(char *str);
+
 
 void read_map(t_info *info, char *map_path);
 
 int		init_identifier(t_info *info, int fd);
+int identifier_fc(t_info *info, char** list);
+void identifier_texture_check(t_info *info, char** list);
+int identifier_texture(t_info *info, char** list);
+int		identifier_r(t_info *info, char** list);
+
 int		init_map(t_info *info, int fd);
+void free_2d_malloc(char **s);
+
 #endif
