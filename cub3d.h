@@ -37,8 +37,8 @@
 #define mapWidth 24
 #define mapHeight 24
 
-#define texWidth 64
-#define texHeight 64
+#define TEX_WIDTH 64
+#define TEX_HEIGHT 64
 
 #define NO 0
 #define SO 1
@@ -99,8 +99,7 @@ typedef struct	s_img
 typedef struct s_texture
 {
 	char	*texture_path; //저장경로.
-	int 	height;
-	int		width;
+	int		*texture;
 } t_texture;
 
 typedef struct s_color
@@ -212,4 +211,9 @@ void check_list_init(t_info *info);
 char *move_map_line(t_info *info, int fd);
 int read_map_end_line(t_info *info, int fd, char *line, int i);
 int read_map_line(t_info *info, int fd, char *line);
+
+void	load_textures(t_info *info);
+int		init_texture(t_info *info);
+
+
 #endif

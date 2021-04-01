@@ -1,12 +1,12 @@
 R 640 480
-NO ./images/NO.xpm
-SO ./images/SO.xpm
-WE ./images/WE.xpm
-EA ./images/EA.xpm
-S ./images/ITEM.xpn
+NO ./textures/wall_n.xpm
+SO ./textures/wall_s.xpm
+WE ./textures/wall_w.xpm
+EA ./textures/wall_e.xpm
+S ./textures/wood.xpn
 F 00,153,15
-C 255,255,255
+C 255,255,0
 
 1111
-110S
-1110
+10S1
+1111

@@ -113,7 +113,7 @@ void init_info(t_info *info)
 	if (!(info->mlx_ptr = mlx_init()) || !(info->win = mlx_new_window(
 			info->mlx_ptr, WIN_WIDTH, WIN_HEIGHT, "cub3d")))
 		exit(0); //실패시 종료
-	set_xy(&info->pos, 12, 5); // 현재 위치.
+	set_xy(&info->pos, 1.5, 1.5); // 현재 위치.
 
 	// 보고 있는 방향. 카메라 평면
 	set_xy(&info->dir, -1, 0); //방향
@@ -149,35 +149,6 @@ void	verLine(t_info *info, int x, int y1, int y2, int color)
 		y++;
 	}
 }
-
-
-//void	load_image(t_info *info, int *textures, char *path, t_img *img)
-//{
-//	img->img_ptr = mlx_xpm_file_to_image(info->mlx_ptr, path, &img->width, &img->height);
-//	img->data = (int *)mlx_get_data_addr(img->img_ptr, &img->bpp, &img->size_line, &img->endian);
-//	for (int y = 0; y < img->height; y++)
-//	{
-//		for (int x = 0; x < img->width; x++)
-//		{
-//			textures[img->width * y + x] = img->data[img->width * y + x];
-//		}
-//	}
-//	mlx_destroy_image(info->mlx_ptr, img->img_ptr); // 배열에 저장했으므로 포인터 제거.
-//}
-//
-//void	load_textures(t_info *info)
-//{
-//	t_img	img;
-//
-//	load_image(info, info->textures[0], "textures/eagle.xpm", &img); // 동
-//	load_image(info, info->textures[1], "textures/redbrick.xpm", &img); //서
-//	load_image(info, info->textures[2], "textures/purplestone.xpm", &img); //남
-//	load_image(info, info->textures[3], "textures/greystone.xpm", &img); // 북
-//	load_image(info, info->textures[4], "textures/bluestone.xpm", &img); // sprite?
-//	load_image(info, info->textures[5], "textures/mossy.xpm", &img);
-//	load_image(info, info->textures[6], "textures/wood.xpm", &img);
-//	load_image(info, info->textures[7], "textures/colorstone.xpm", &img);
-//}
 
 void	calc_ray(t_info *info, t_ray *ray, int x)
 {
@@ -378,27 +349,54 @@ void draw_wall(t_info *info, t_ray *ray, int x) {
 
 	// x coordinate on the texture
 	// 벽과 거리와 텍스쳐 두께를 이용해 texX를 구함.
-	int texX = (int)(wallX * (double)texWidth);
+	int texX = (int)(wallX * (double)TEX_WIDTH);
 	if (ray->side == 0 && ray->ray_dir.x > 0)
-		texX = texWidth - texX - 1;
+		texX = TEX_WIDTH - texX - 1;
 	if (ray->side == 1 && ray->ray_dir.y < 0)
-		texX = texWidth - texX - 1;
+		texX = TEX_WIDTH - texX - 1;
 
 	// How much to increase the texture coordinate perscreen pixel
-	double step_ = 1.0 * texHeight / lineHeight; // 2.0으로 할경우 벽이 가로 두개로 나뉘어짐.
+	double step_ = 1.0 * TEX_HEIGHT / lineHeight; // 2.0으로 할경우 벽이 가로 두개로 나뉘어짐.
 
+	int color;
 	//텍스쳐의 위치.
 	double texPos = (drawStart - WIN_HEIGHT / 2 + lineHeight / 2) * step_;
-	for (int y = drawStart; y < drawEnd; y++) // y좌표를 그린다.
+	for (int y = drawStart; y <= drawEnd; y++) // y좌표를 그린다.
 	{
 		// Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
-		int texY = (int)texPos & (texHeight - 1);
+		int texY = (int)texPos & (TEX_HEIGHT - 1);
 		texPos += step_;
-		int color = info->textures[texNum][texHeight * texY + texX]; // 위치에 맞는 데이터를 가져옴.
+		 // 위치에 맞는 데이터를 가져옴.
 		// make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
-		if (ray->side == 1) // y벽면에 부딪히는경우. 색을 어둡게.
-			color = (color >> 1) & 8355711;
+		if (ray->side == 1) // y벽면에 부딪히는경우.
+		{
+			if (ray->ray_dir.y < 0)
+				color = info->texture[WE].texture[TEX_HEIGHT * texY + texX]; // 서쪽
+			else
+				color = info->texture[EA].texture[TEX_HEIGHT * texY + texX]; // 동쪽
+		}
+		else //x 벽면에 부딪히는 경우.
+		{
+			if (ray->ray_dir.x < 0) //x의 진행방향이 음수.
+				color = info->texture[NO].texture[TEX_HEIGHT * texY + texX]; // 북쪽
+			else // x의 진행방향이 양수
+				color = info->texture[SO].texture[TEX_HEIGHT * texY + texX]; // 남쪽
+		}
 		info->buf[y][x] = color;
+	}
+}
+
+
+//todo 동적할당으로 지정한 경로 free. 프로그램 종료시 호출
+void free_texture_path(t_info *info)
+{
+	int i;
+
+	i = 0;
+	while (i < 4)
+	{
+		free(info->texture[i].texture_path);
+		i++;
 	}
 }
 
@@ -413,59 +411,41 @@ int			main(int argc, char *argv[])
 		exit(0);
 	//map_init(&info, argv[1]); //맵 초기화
 	read_map(&info, "./map.cub");
-	/*
 
-init_info(&info);
+	init_info(&info);
 
-//텍스쳐가 스크린 사이즈 버퍼. => 버퍼에 저장해놓고 그림.
-for (int i = 0; i < WIN_HEIGHT; i++)
-{
-for (int j = 0; j < WIN_WIDTH; j++)
-{
-	info.buf[i][j] = 0;
-}
-}
+	//텍스쳐가 스크린 사이즈 버퍼. => 버퍼에 저장해놓고 그림.
+	for (int i = 0; i < WIN_HEIGHT; i++)
+	{
+		for (int j = 0; j < WIN_WIDTH; j++)
+		{
+			info.buf[i][j] = 0;
+		}
+	}
 
-// 텍스쳐 사이즈 생성. 동적할당. todo free
-if (!(info.texture = (int **)malloc(sizeof(int *) * 8)))
-return (-1);
-for (int i = 0; i < 8; i++)
-{
-if (!(info.texture[i] = (int *)malloc(sizeof(int) * (texHeight * texWidth))))
-	return (-1);
-}
-for (int i = 0; i < 8; i++)
-{
-for (int j = 0; j < texHeight * texWidth; j++)
-{
-	info.texture[i][j] = 0;
-}
-}
+	if (init_texture(&info))
+	{
+		printf("texture 초기화 실패");
+		exit(-1);
+	}
+	load_textures(&info);
 
-load_texture(&info);
-info.img.img_ptr = mlx_new_image(info.mlx_ptr, WIN_WIDTH, WIN_HEIGHT);
-info.img.data = (int *)mlx_get_data_addr(info.img.img_ptr, &info.img.bpp, &info.img.size_line, &info.img.endian);
+	info.img.img_ptr = mlx_new_image(info.mlx_ptr, WIN_WIDTH, WIN_HEIGHT);
+	info.img.data = (int *)mlx_get_data_addr(info.img.img_ptr, &info.img.bpp, &info.img.size_line, &info.img.endian);
 
-//키 이벤트, 키 함수.
-mlx_hook(info.win, X_EVENT_KEY_PRESS, 0, &key_press, &info);
-mlx_hook(info.win, X_EVENT_KEY_release, 0, &key_release, &info);
+	//키 이벤트, 키 함수.
+	mlx_hook(info.win, X_EVENT_KEY_PRESS, 0, &key_press, &info);
+	mlx_hook(info.win, X_EVENT_KEY_release, 0, &key_release, &info);
 
-//
-mlx_loop_hook(info.mlx_ptr, &main_loop, &info);
+	//
+	mlx_loop_hook(info.mlx_ptr, &main_loop, &info);
 
-// 시작.
-mlx_loop(info.mlx_ptr);
-*/
+	// 시작.
+	mlx_loop(info.mlx_ptr);
 	return (0);
 }
 
-
-
-//dfs 로 유효성 검사void map_validation() {
-	//맵에 대한 검증.
-
-//}
-
+// todo 스크린 자동 조절
 //https://harm-smits.github.io/42docs/libs/minilibx/prototypes.html#mlx_get_screen_size
 //int   *ft_screen_check(t_all *s)
 //{
