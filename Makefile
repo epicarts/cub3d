@@ -1,12 +1,11 @@
-SRCS_DIR = ./
-
 CC = gcc
 CFLAGS = -c -Wall -Wextra -Werror
 
 #LIBS   = -Lmlx -lmlx -framework OpenGL -framework AppKit -lm
 
 
-SRCS = $(SRC_DIR)cub3d.c \
+SRCS = ./cub3d.c \
+
 
 
 NAME = libftprintf.a

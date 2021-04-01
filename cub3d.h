@@ -110,6 +110,14 @@ typedef struct s_color
 	int blue;
 } t_color;
 
+typedef struct s_dir_check
+{
+	int w;
+	int n;
+	int s;
+	int e;
+} t_dir_check;
+
 typedef struct		s_info
 {
 	void			*mlx_ptr;
@@ -137,9 +145,12 @@ typedef struct		s_info
 	int		floor_color;
 	int		ceil_color;
 
-	t_read_check read_check;
-
 	int		**world_map;
+	int		map_width;
+	int		map_height;
+
+	t_read_check	read_check;
+	t_dir_check		dir_check;
 
 	int win_x;
 	int win_y;
@@ -157,6 +168,7 @@ typedef struct	s_camera
 # include <unistd.h>
 # include <stdlib.h>
 # include <limits.h>
+# include <math.h>
 
 # ifndef BUFFER_SIZE
 #  define BUFFER_SIZE 1024
@@ -187,5 +199,17 @@ int		identifier_r(t_info *info, char** list);
 
 int		init_map(t_info *info, int fd);
 void free_2d_malloc(char **s);
+int is_map(int c);
+int is_map_in_line(char *line);
+void set_xy(t_xy *xy, double x, double y);
 
+void count_map_width_height(t_info *info, char *line);
+int init_dir_duplicate(t_info *info);
+int check_dir_duplicate(t_info *info);
+void count_dir_duplicate(t_info *info, const char *line);
+void check_list_init(t_info *info);
+
+char *move_map_line(t_info *info, int fd);
+int read_map_end_line(t_info *info, int fd, char *line, int i);
+int read_map_line(t_info *info, int fd, char *line);
 #endif

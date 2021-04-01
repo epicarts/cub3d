@@ -17,13 +17,17 @@ add_executable(
         utils/ft_isdigit.c
         utils/free_2d_malloc.c
         utils/digit_in_str.c
+        utils/is_map.c
+        utils/set_xy.c
         config/init_identifier_fc.c
         config/init_identifier.c
         config/init_identifier_texture.c
         config/config.c
         config/init_map.c
         config/init_identifier_fc.c
-        config/identifier_r.c
+        config/init_identifier_r.c
+        config/check_utils.c
+        config/first_map_check.c
 )
 
 target_link_libraries(cub3d "-framework AppKit" "-framework OpenGL" "mlx")

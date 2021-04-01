@@ -27,8 +27,6 @@ void exit_game()
 
 //keycode는 내가 누른 키보드 입력값.
 int				key_press(int keycode, t_info *info) {
-	static int a = 0;
-
 	if (keycode == KEY_ESC) //프로그램 종료.
 		exit(0);
 	else if (keycode == KEY_W)
@@ -98,12 +96,6 @@ int	worldMap[mapWidth][mapHeight] =
 				{4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2},
 				{4,4,4,4,4,4,4,4,4,4,1,1,1,2,2,2,2,2,2,3,3,3,3,3}
 };
-
-void set_xy(t_xy *xy, double x, double y)
-{
-	xy->x = x;
-	xy->y = y;
-}
 
 //t_xy	dir; //방향
 //t_xy	pos; //위치
