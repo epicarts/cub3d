@@ -139,7 +139,6 @@ typedef struct		s_info
 
 	t_texture texture[4];
 	t_texture s_texture;
-	int		**textures;
 
 	int		floor_color;
 	int		ceil_color;
@@ -212,7 +211,7 @@ char *move_map_line(t_info *info, int fd);
 int read_map_end_line(t_info *info, int fd, char *line, int i);
 int read_map_line(t_info *info, int fd, char *line);
 
-void	load_textures(t_info *info);
+int		load_textures(t_info *info);
 int		init_texture(t_info *info);
 
 

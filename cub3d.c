@@ -68,35 +68,6 @@ int key_release(int keycode, t_info *info) {
 //
 //}
 
-// 2차원 배열의 맵.
-int	worldMap[mapWidth][mapHeight] =
-		{
-				{4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7},
-				{4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7},
-				{4,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
-				{4,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
-				{4,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7},
-				{4,0,4,0,0,0,0,5,5,5,5,5,5,5,5,5,7,7,0,7,7,7,7,7},
-				{4,0,5,0,0,0,0,5,0,5,0,5,0,5,0,5,7,0,0,0,7,7,7,1},
-				{4,0,6,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,8},
-				{4,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,7,7,1},
-				{4,0,8,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,8},
-				{4,0,0,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,7,7,7,1},
-				{4,0,0,0,0,0,0,5,5,5,5,0,5,5,5,5,7,7,7,7,7,7,7,1},
-				{6,6,6,6,6,6,6,6,6,6,6,0,6,6,6,6,6,6,6,6,6,6,6,6},
-				{8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4},
-				{6,6,6,6,6,6,0,6,6,6,6,0,6,6,6,6,6,6,6,6,6,6,6,6},
-				{4,4,4,4,4,4,0,4,4,4,6,0,6,2,2,2,2,2,2,2,3,3,3,3},
-				{4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2},
-				{4,0,0,0,0,0,0,0,0,0,0,0,6,2,0,0,5,0,0,2,0,0,0,2},
-				{4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,2,0,2,2},
-				{4,0,6,0,6,0,0,0,0,4,6,0,0,0,0,0,5,0,0,0,0,0,0,2},
-				{4,0,0,5,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,2,0,2,2},
-				{4,0,6,0,6,0,0,0,0,4,6,0,6,2,0,0,5,0,0,2,0,0,0,2},
-				{4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2},
-				{4,4,4,4,4,4,4,4,4,4,1,1,1,2,2,2,2,2,2,3,3,3,3,3}
-};
-
 //t_xy	dir; //방향
 //t_xy	pos; //위치
 //t_xy	plane; //평면
@@ -113,12 +84,6 @@ void init_info(t_info *info)
 	if (!(info->mlx_ptr = mlx_init()) || !(info->win = mlx_new_window(
 			info->mlx_ptr, WIN_WIDTH, WIN_HEIGHT, "cub3d")))
 		exit(0); //실패시 종료
-	set_xy(&info->pos, 1.5, 1.5); // 현재 위치.
-
-	// 보고 있는 방향. 카메라 평면
-	set_xy(&info->dir, -1, 0); //방향
-	set_xy(&info->plane, 0, 0.66);
-
 	set_xy(&info->move, 0, 0);
 	set_xy(&info->x_move, 0, 0);
 
@@ -202,7 +167,7 @@ void	calc_ray(t_info *info, t_ray *ray, int x)
 			ray->map.y += (int)ray->step.y;//ray 오른쪽으로 왼쪽으로 움직이는지. 기울기가 음수 양수
 			ray->side = 1; // 가로선과 부딪힘.
 		}
-		if (worldMap[(int)ray->map.x][(int)ray->map.y] > 0) // 벽은 1로 표현되어짐. todo
+		if (info->world_map[(int)ray->map.x][(int)ray->map.y] > 0) // 벽은 1로 표현되어짐. todo
 			hit = 1;
 	}
 
@@ -254,16 +219,16 @@ void move(t_info *info)
 
 	if (info->key.w)
 	{
-		if (!worldMap[(int)(info->pos.x + info->dir.x * info->move_speed)][(int)(info->pos.y)])
+		if (!info->world_map[(int)(info->pos.x + info->dir.x * info->move_speed)][(int)(info->pos.y)])
 			info->pos.x += info->dir.x * info->move_speed;
-		if (!worldMap[(int)(info->pos.x)][(int)(info->pos.y + info->dir.y * info->move_speed)])
+		if (!info->world_map[(int)(info->pos.x)][(int)(info->pos.y + info->dir.y * info->move_speed)])
 			info->pos.y += info->dir.y * info->move_speed;
 	}
 	else if (info->key.s)
 	{
-		if (!worldMap[(int)(info->pos.x - info->dir.x * info->move_speed)][(int)(info->pos.y)])
+		if (!info->world_map[(int)(info->pos.x - info->dir.x * info->move_speed)][(int)(info->pos.y)])
 			info->pos.x -= info->dir.x * info->move_speed;
-		if (!worldMap[(int)(info->pos.x)][(int)(info->pos.y - info->dir.y * info->move_speed)])
+		if (!info->world_map[(int)(info->pos.x)][(int)(info->pos.y - info->dir.y * info->move_speed)])
 			info->pos.y -= info->dir.y * info->move_speed;
 	}
 }
@@ -336,9 +301,6 @@ void draw_wall(t_info *info, t_ray *ray, int x) {
 	if(drawEnd >= WIN_HEIGHT) // 높이가 초과될경우 화면의 가장 끝에 보이도록.
 		drawEnd = WIN_HEIGHT - 1;
 
-	// 0번째 텍스쳐도 0, 벽이 없는것도 0 => 1이면 texNum이 0 이되어 텍스쳐 종류를 가르킴.
-	int texNum = worldMap[(int)ray->map.x][(int)ray->map.y] - 1;
-
 	// 벽과 double  거리
 	double wallX;
 	if (ray->side == 0)
@@ -399,6 +361,17 @@ void free_texture_path(t_info *info)
 		i++;
 	}
 }
+void free_texture(t_info *info)
+{
+	int i;
+
+	while (i < 4)
+	{
+		free(info->texture[i].texture);
+		i++;
+	}
+}
+
 
 int			main(int argc, char *argv[])
 {
@@ -426,9 +399,17 @@ int			main(int argc, char *argv[])
 	if (init_texture(&info))
 	{
 		printf("texture 초기화 실패");
+		free_texture_path(&info);
 		exit(-1);
 	}
-	load_textures(&info);
+	if (load_textures(&info))
+	{
+		printf("texture 로드 실패");
+		free_texture_path(&info);
+		free_texture(&info);
+		//todo free
+		exit(-1);
+	}
 
 	info.img.img_ptr = mlx_new_image(info.mlx_ptr, WIN_WIDTH, WIN_HEIGHT);
 	info.img.data = (int *)mlx_get_data_addr(info.img.img_ptr, &info.img.bpp, &info.img.size_line, &info.img.endian);
