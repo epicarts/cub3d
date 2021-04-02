@@ -77,6 +77,8 @@ typedef struct		s_key {
 	int a;
 	int s;
 	int d;
+	int l;
+	int r;
 }					t_key;
 
 typedef struct	s_img

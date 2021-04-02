@@ -37,6 +37,10 @@ int				key_press(int keycode, t_info *info) {
 		info->key.s = 1;
 	else if (keycode == KEY_D)
 		info->key.d = 1;
+	else if (keycode == KEY_LEFT)
+		info->key.l = 1;
+	else if (keycode == KEY_RIGHT)
+		info->key.r = 1;
 	return (0);
 }
 
@@ -52,6 +56,10 @@ int key_release(int keycode, t_info *info) {
 		info->key.s = 0;
 	else if (keycode == KEY_D)
 		info->key.d = 0;
+	else if (keycode == KEY_LEFT)
+		info->key.l = 0;
+	else if (keycode == KEY_RIGHT)
+		info->key.r = 0;
 	return (0);
 }
 
@@ -96,6 +104,8 @@ void init_info(t_info *info)
 	info->key.a = 0;
 	info->key.s = 0;
 	info->key.d = 0;
+	info->key.l = 0;
+	info->key.r = 0;
 
 //	//벽, 땅 색깔 초기화
 //	info->ceil_color = rgb_to_int(120,120,0);
@@ -190,7 +200,7 @@ void rotate(t_info *info)
 //	else
 //		flag = -1;
 	// 오른쪽이면
-	flag = info->key.a == 1 ? 1 : -1;
+	flag = info->key.l == 1 ? 1 : -1;
 
 	//방향벡터 회전
 	old = info->dir.x;
@@ -231,6 +241,20 @@ void move(t_info *info)
 		if (!info->world_map[(int)(info->pos.x)][(int)(info->pos.y - info->dir.y * info->move_speed)])
 			info->pos.y -= info->dir.y * info->move_speed;
 	}
+	else if (info->key.d)
+	{
+		if (!info->world_map[(int)(info->pos.x)][(int)(info->pos.y - info->dir.x * info->move_speed)])
+			info->pos.y -= info->dir.x * info->move_speed;
+		if (!info->world_map[(int)(info->pos.x + info->dir.y * info->move_speed)][(int)(info->pos.y)])
+			info->pos.x += info->dir.y * info->move_speed;
+	}
+	else if (info->key.a)
+	{
+		if (!info->world_map[(int)(info->pos.x)][(int)(info->pos.y + info->dir.x * info->move_speed)])
+			info->pos.y += info->dir.x * info->move_speed;
+		if (!info->world_map[(int)(info->pos.x - info->dir.y * info->move_speed)][(int)(info->pos.y)])
+			info->pos.x -= info->dir.y * info->move_speed;
+	}
 }
 
 void	put_draw(t_info *info)
@@ -265,9 +289,9 @@ int main_loop(t_info *info)
 {
 
 	//keyboard rotate
-	if (info->key.w || info->key.s)
+	if (info->key.w || info->key.s || info->key.a || info->key.d)
 		move(info);
-	if (info->key.a || info->key.d)
+	if (info->key.r || info->key.l)
 		rotate(info);
 
 	t_ray	ray;
