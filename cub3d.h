@@ -44,6 +44,7 @@
 #define SO 1
 #define WE 2
 #define EA 3
+#define LOAD_TEX_SIZE 5
 
 typedef struct		s_xy {
 	double x;
@@ -56,6 +57,7 @@ typedef struct 	s_ray {
 	t_xy	ray_dir;
 	t_xy	step; // 밫의 방향을 어디로 쐇는지 기록. 오른쪽? 왼쪽? 아래? 위? //칸을 이동하는 방향.
 	t_xy	delta_dist; // 1칸의 광선의 이동거리. delta_dist.x x한칸당 이동거리. / delta_dist.y y한칸당 이동거리
+	t_xy	side_dist; // 맨처음만나는 x, y값의 거리
 	t_xy	map;
 }				t_ray;
 
@@ -154,6 +156,8 @@ typedef struct		s_info
 
 	int win_x;
 	int win_y;
+
+	double	zBuffer[WIN_WIDTH];
 }					t_info;
 
 typedef struct	s_camera
@@ -216,5 +220,7 @@ int read_map_line(t_info *info, int fd, char *line);
 int		load_textures(t_info *info);
 int		init_texture(t_info *info);
 
+void	calc_ray(t_info *info, t_ray *ray, int x);
+void	draw_wall(t_info *info, t_ray *ray, int x);
 
 #endif

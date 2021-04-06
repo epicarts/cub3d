@@ -7,7 +7,7 @@ int init_texture(t_info *info)
 	int j;
 
 	i = -1;
-	while (++i < 4)
+	while (++i < LOAD_TEX_SIZE) //todo 내일 하기.
 	{
 		j = -1;
 		if (!(info->texture[i].texture = (int *)malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT)))) //todo free 동적 할당.
@@ -53,6 +53,8 @@ int		load_textures(t_info *info)
 	if(load_image(info, info->texture[WE].texture, info->texture[WE].texture_path, &img))
 		return (-1);
 	if(load_image(info, info->texture[NO].texture, info->texture[NO].texture_path, &img))
+		return (-1);
+	if(load_image(info, info->s_texture.texture, info->s_texture.texture_path, &img))
 		return (-1);
 	return (0);
 }

@@ -3,7 +3,6 @@
 //
 
 #include <math.h>
-#include <fcntl.h>
 #include "cub3d.h"
 
 void map_validation();
@@ -112,82 +111,6 @@ void init_info(t_info *info)
 //	info->floor_color = rgb_to_int(0,120,120);
 }
 
-//x의 위치에서 세로로쭉 pixel을 하나씩 찍어주는 함수.
-void	verLine(t_info *info, int x, int y1, int y2, int color)
-{
-	int	y;
-
-	y = y1;
-	while (y <= y2)
-	{
-		mlx_pixel_put(info->mlx_ptr, info->win, x, y, color);
-		y++;
-	}
-}
-
-void	calc_ray(t_info *info, t_ray *ray, int x)
-{
-	double K = 2 * x / (double)WIN_WIDTH - 1; // -1 ~ 1 로 정규화. 0 일떄 -1 / x가 최대값이면 2 - 1 = 1
-
-	//ray의 방향. plane의 k배수
-	set_xy(&ray->ray_dir,info->dir.x + info->plane.x * K, info->dir.y + info->plane.y * K);
-
-	//내림을 통해 내 현재 광선 위치.
-	set_xy(&ray->map, (int)info->pos.x, (int)info->pos.y);
-
-	set_xy(&ray->delta_dist, fabs(1. / ray->ray_dir.x), fabs(1. / ray->ray_dir.y));
-
-	t_xy side_dist; // 맨처음만나는 x, y값의 거리
-
-	if (ray->ray_dir.x < 0) // 왼쪽 방향으로 쐇다.
-	{
-		ray->step.x = -1; //x가 음의 방향인가?
-		side_dist.x = (info->pos.x - ray->map.x) * ray->delta_dist.x; //플레이어 - 맵.
-	}
-	else
-	{
-		ray->step.x = 1; //x가 양의 방향인가?
-		side_dist.x = (ray->map.x + 1.0 - info->pos.x) * ray->delta_dist.x;
-	}
-	if (ray->ray_dir.y < 0)
-	{
-		ray->step.y = -1;
-		side_dist.y = (info->pos.y - ray->map.y) * ray->delta_dist.y;
-	}
-	else
-	{
-		ray->step.y = 1;
-		side_dist.y = (ray->map.y + 1.0 - info->pos.y) * ray->delta_dist.y;
-	}
-
-	//DDA 알고리즘
-	int hit = 0;
-	//칸수 체크하면서 hit되었는지 봄.
-	while (hit == 0)
-	{
-		// y가 더 가파른 경우. y의 증가폭이 큰경우. x를 1씩 증가시켜야함.
-		if(side_dist.x < side_dist.y)
-		{
-			side_dist.x += ray->delta_dist.x; //다음번 x선을 만날떄까지 길이를 계속 더해줌.
-			ray->map.x += (int)ray->step.x; //오른쪽으로 x가 움직이는지 왼쪽으로 움직이는지. 기울기가 음수 양수
-			ray->side = 0; //세로선과 부딪힘.  //위아래선이냐, 오른쪽 왼쪽 선이냐
-		}
-		else {
-			side_dist.y += ray->delta_dist.y; //다음번 y선을 만날떄까지 길이를 계속 더해줌
-			ray->map.y += (int)ray->step.y;//ray 오른쪽으로 왼쪽으로 움직이는지. 기울기가 음수 양수
-			ray->side = 1; // 가로선과 부딪힘.
-		}
-		if (info->world_map[(int)ray->map.x][(int)ray->map.y] > 0) // 벽은 1로 표현되어짐. todo
-			hit = 1;
-	}
-
-	//레이에서 hit되었을때 카메라 평면과의 수선의 발의 길이. 둥글게 보임.
-	if (ray->side == 0)
-		ray->perp_wall_dist = (ray->map.x - info->pos.x + (1 - ray->step.x) / 2) / ray->ray_dir.x; //step은 1
-	else
-		ray->perp_wall_dist = (ray->map.y - info->pos.y + (1 - ray->step.y) / 2) / ray->ray_dir.y;
-}
-
 //key_event.c todo
 //회전 행렬을 곱해야함. 방향벡터와 카메라평면벡터 둘 다 회전
 void rotate(t_info *info)
@@ -226,7 +149,6 @@ void rotate(t_info *info)
 //위 아래로 움직여야함.
 void move(t_info *info)
 {
-
 	if (info->key.w)
 	{
 		if (!info->world_map[(int)(info->pos.x + info->dir.x * info->move_speed)][(int)(info->pos.y)])
@@ -284,6 +206,126 @@ void draw_floor_ceiling(t_info *info, t_ray *ray, int x)
 	}
 }
 
+void draw_sprite(t_info *info)
+{
+	//SPRITE CASTING
+	//sort sprites from far to close
+	//translate sprite position to relative to camera
+	double spriteX = 2.5 - info->pos.x;
+	double spriteY = 2.5 - info->pos.y;
+
+	//transform sprite with the inverse camera matrix
+	// [ planeX   dirX ] -1                                       [ dirY      -dirX ]
+	// [               ]       =  1/(planeX*dirY-dirX*planeY) *   [                 ]
+	// [ planeY   dirY ]                                          [ -planeY  planeX ]
+
+	double invDet = 1.0 / (info->plane.x * info->dir.y - info->dir.x * info->plane.y); //required for correct matrix multiplication
+
+	double transformX = invDet * (info->dir.y * spriteX - info->dir.x * spriteY);
+	double transformY = invDet * (-info->plane.y * spriteX + info->plane.x * spriteY); //this is actually the depth inside the screen, that what Z is in 3D, the distance of sprite to player, matching sqrt(spriteDistance[i])
+
+	int spriteScreenX = (int)((WIN_WIDTH / 2) * (1 + transformX / transformY));
+
+	//parameters for scaling and moving the sprites
+	#define uDiv 1
+	#define vDiv 1
+	#define vMove 0.0
+	int vMoveScreen = (int)(vMove / transformY);
+
+	//calculate height of the sprite on screen
+	int spriteHeight = (int)fabs((WIN_HEIGHT / transformY) / vDiv); //using "transformY" instead of the real distance prevents fisheye
+	//calculate lowest and highest pixel to fill in current stripe
+	int drawStartY = -spriteHeight / 2 + WIN_HEIGHT / 2 + vMoveScreen;
+	if(drawStartY < 0) drawStartY = 0;
+	int drawEndY = spriteHeight / 2 + WIN_HEIGHT / 2 + vMoveScreen;
+	if(drawEndY >= WIN_HEIGHT) drawEndY = WIN_HEIGHT - 1;
+
+	//calculate width of the sprite
+	int spriteWidth = (int)fabs((WIN_HEIGHT / transformY) / uDiv);
+	int drawStartX = -spriteWidth / 2 + spriteScreenX;
+	if(drawStartX < 0) drawStartX = 0;
+	int drawEndX = spriteWidth / 2 + spriteScreenX;
+	if(drawEndX >= WIN_WIDTH) drawEndX = WIN_WIDTH - 1;
+
+	//loop through every vertical stripe of the sprite on screen
+	for(int stripe = drawStartX; stripe < drawEndX; stripe++)
+	{
+		int texX = (int)((256 * (stripe - (-spriteWidth / 2 + spriteScreenX)) * TEX_WIDTH / spriteWidth) / 256);
+		//the conditions in the if are:
+		//1) it's in front of camera plane so you don't see things behind you
+		//2) it's on the screen (left)
+		//3) it's on the screen (right)
+		//4) ZBuffer, with perpendicular distance
+		if(transformY > 0 && stripe > 0 && stripe < WIN_WIDTH && transformY < info->zBuffer[stripe])
+			for(int y = drawStartY; y < drawEndY; y++) //for every pixel of the current stripe
+			{
+				int d = (y-vMoveScreen) * 256 - WIN_HEIGHT * 128 + spriteHeight * 128; //256 and 128 factors to avoid floats
+				int texY = ((d * TEX_HEIGHT) / spriteHeight) / 256;
+				int color = info->s_texture.texture[TEX_WIDTH * texY + texX]; //get current color from the texture
+				if((color & 0x00FFFFFF) != 0) // 검은색이 아닐경우.
+					info->buf[y][stripe] = color; // 픽셀 색깔로 칠함.
+			}
+	}
+}
+
+//void draw_sprite(t_info *info)
+//{
+//	double spriteX = 1.5 - info->pos.x;
+//	double spriteY = 1.5 - info->pos.y;
+//
+//
+//	//transform sprite with the inverse camera matrix
+//	// [ planeX   dirX ] -1                                       [ dirY      -dirX ]
+//	// [               ]       =  1/(planeX*dirY-dirX*planeY) *   [                 ]
+//	// [ planeY   dirY ]                                          [ -planeY  planeX ]
+//
+//	double invDet = 1.0 / (info->plane.x * info->dir.y - info->dir.x * info->plane.y); //required for correct matrix multiplication
+//
+//	double transformX = invDet * (info->dir.y * spriteX - info->dir.x * spriteY);
+//	double transformY = invDet * (-info->plane.y * spriteX + info->plane.x * spriteY); //this is actually the depth inside the screen, that what Z is in 3D, the distance of sprite to player, matching sqrt(spriteDistance[i])
+//
+//	int spriteScreenX = (int)((WIN_WIDTH / 2) * (1 + transformX / transformY));
+//
+//	//parameters for scaling and moving the sprites
+//	#define uDiv 1
+//	#define vDiv 1
+//	#define vMove 0.0
+//	int vMoveScreen = (int)(vMove / transformY);
+//
+//	//calculate height of the sprite on screen
+//	int spriteHeight = (int)fabs((WIN_HEIGHT / transformY) / vDiv); //using "transformY" instead of the real distance prevents fisheye
+//	//calculate lowest and highest pixel to fill in current stripe
+//	int drawStartY = -spriteHeight / 2 + WIN_HEIGHT / 2 + vMoveScreen;
+//	if(drawStartY < 0) drawStartY = 0;
+//	int drawEndY = spriteHeight / 2 + WIN_HEIGHT / 2 + vMoveScreen;
+//	if(drawEndY >= WIN_HEIGHT) drawEndY = WIN_HEIGHT - 1;
+//
+//	//calculate width of the sprite
+//	int spriteWidth = (int)fabs((WIN_HEIGHT / transformY) / uDiv);
+//	int drawStartX = -spriteWidth / 2 + spriteScreenX;
+//	if(drawStartX < 0) drawStartX = 0;
+//	int drawEndX = spriteWidth / 2 + spriteScreenX;
+//	if(drawEndX >= WIN_WIDTH) drawEndX = WIN_WIDTH - 1;
+//
+//	//loop through every vertical stripe of the sprite on screen
+//	for(int stripe = drawStartX; stripe < drawEndX; stripe++)
+//	{
+//		int texX = (int)((256 * (stripe - (-spriteWidth / 2 + spriteScreenX)) * TEX_WIDTH / spriteWidth) / 256);
+//		//the conditions in the if are:
+//		//1) it's in front of camera plane so you don't see things behind you
+//		//2) it's on the screen (left)
+//		//3) it's on the screen (right)
+//		//4) ZBuffer, with perpendicular distance
+//		if(transformY > 0 && stripe > 0 && stripe < WIN_WIDTH && transformY < info->zBuffer[stripe]) //perpWallDist
+//			for(int y = drawStartY; y < drawEndY; y++) //for every pixel of the current stripe
+//			{
+//				int d = (y-vMoveScreen) * 256 - WIN_HEIGHT * 128 + spriteHeight * 128; //256 and 128 factors to avoid floats
+//				int texY = ((d * TEX_HEIGHT) / spriteHeight) / 256;
+//				int color = info->s_texture.texture[TEX_WIDTH * texY + texX]; //get current color from the texture
+//				if((color & 0x00FFFFFF) != 0) info->buf[y][stripe] = color; //paint pixel if it isn't black, black is the invisible color
+//			}
+//	}
+//}
 
 int main_loop(t_info *info)
 {
@@ -304,6 +346,7 @@ int main_loop(t_info *info)
 		calc_ray(info, &ray, x);	// init ray
 		draw_wall(info, &ray, x); // 벽 그리기.
 	}
+	draw_sprite(info);
 
 	put_draw(info);
 
@@ -313,64 +356,6 @@ int main_loop(t_info *info)
 	return (0);
 }
 
-void draw_wall(t_info *info, t_ray *ray, int x) {
-// win 높이를 사용해서 벽의 높이를 구함
-	int lineHeight = (int)(WIN_HEIGHT / ray->perp_wall_dist); //거리에 반비례.
-
-	//텍스쳐의 시작 위치로 활용가능.
-	int drawStart = -lineHeight / 2 + WIN_HEIGHT / 2;
-	if(drawStart < 0) // 시작 위치가 음수일경우 0부터 그리도록.
-		drawStart = 0;
-	int drawEnd = lineHeight / 2 + WIN_HEIGHT / 2; // 끝나는 높이 좌표.
-	if(drawEnd >= WIN_HEIGHT) // 높이가 초과될경우 화면의 가장 끝에 보이도록.
-		drawEnd = WIN_HEIGHT - 1;
-
-	// 벽과 double  거리
-	double wallX;
-	if (ray->side == 0)
-		wallX = info->pos.y + ray->perp_wall_dist * ray->ray_dir.y;
-	else
-		wallX = info->pos.x + ray->perp_wall_dist * ray->ray_dir.x;
-	wallX -= floor(wallX);
-
-	// x coordinate on the texture
-	// 벽과 거리와 텍스쳐 두께를 이용해 texX를 구함.
-	int texX = (int)(wallX * (double)TEX_WIDTH);
-	if (ray->side == 0 && ray->ray_dir.x > 0)
-		texX = TEX_WIDTH - texX - 1;
-	if (ray->side == 1 && ray->ray_dir.y < 0)
-		texX = TEX_WIDTH - texX - 1;
-
-	// How much to increase the texture coordinate perscreen pixel
-	double step_ = 1.0 * TEX_HEIGHT / lineHeight; // 2.0으로 할경우 벽이 가로 두개로 나뉘어짐.
-
-	int color;
-	//텍스쳐의 위치.
-	double texPos = (drawStart - WIN_HEIGHT / 2 + lineHeight / 2) * step_;
-	for (int y = drawStart; y <= drawEnd; y++) // y좌표를 그린다.
-	{
-		// Cast the texture coordinate to integer, and mask with (texHeight - 1) in case of overflow
-		int texY = (int)texPos & (TEX_HEIGHT - 1);
-		texPos += step_;
-		 // 위치에 맞는 데이터를 가져옴.
-		// make color darker for y-sides: R, G and B byte each divided through two with a "shift" and an "and"
-		if (ray->side == 1) // y벽면에 부딪히는경우.
-		{
-			if (ray->ray_dir.y < 0)
-				color = info->texture[WE].texture[TEX_HEIGHT * texY + texX]; // 서쪽
-			else
-				color = info->texture[EA].texture[TEX_HEIGHT * texY + texX]; // 동쪽
-		}
-		else //x 벽면에 부딪히는 경우.
-		{
-			if (ray->ray_dir.x < 0) //x의 진행방향이 음수.
-				color = info->texture[NO].texture[TEX_HEIGHT * texY + texX]; // 북쪽
-			else // x의 진행방향이 양수
-				color = info->texture[SO].texture[TEX_HEIGHT * texY + texX]; // 남쪽
-		}
-		info->buf[y][x] = color;
-	}
-}
 
 
 //todo 동적할당으로 지정한 경로 free. 프로그램 종료시 호출
@@ -379,7 +364,7 @@ void free_texture_path(t_info *info)
 	int i;
 
 	i = 0;
-	while (i < 4)
+	while (i < LOAD_TEX_SIZE)
 	{
 		free(info->texture[i].texture_path);
 		i++;
@@ -389,7 +374,8 @@ void free_texture(t_info *info)
 {
 	int i;
 
-	while (i < 4)
+	i = 0;
+	while (i < LOAD_TEX_SIZE)
 	{
 		free(info->texture[i].texture);
 		i++;

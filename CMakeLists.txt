@@ -29,6 +29,8 @@ add_executable(
         config/check_utils.c
         config/first_map_check.c
         core/texture.c
+        core/ray.c
+        core/draw_wall.c
 )
 
 target_link_libraries(cub3d "-framework AppKit" "-framework OpenGL" "mlx")
