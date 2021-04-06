@@ -18,24 +18,16 @@
 #define X_EVENT_KEY_EXIT		17 //exit key code
 
 #define KEY_ESC			53
-# define KEY_Q			12
 # define KEY_W			13
-# define KEY_E			14
-# define KEY_R			15
 # define KEY_A			0
 # define KEY_S			1
 # define KEY_D			2
 
 # define KEY_LEFT			123
-# define KEY_DOWN			125
 # define KEY_RIGHT			124
-# define KEY_UP				126
 
 # define WIN_WIDTH 800
 # define WIN_HEIGHT 600
-
-#define mapWidth 24
-#define mapHeight 24
 
 #define TEX_WIDTH 64
 #define TEX_HEIGHT 64
@@ -44,7 +36,14 @@
 #define SO 1
 #define WE 2
 #define EA 3
-#define LOAD_TEX_SIZE 5
+#define S  4
+#define TEX_WALL_NUM 5
+
+
+//parameters for scaling and moving the sprites
+#define uDiv 1
+#define vDiv 1
+#define vMove 0.0
 
 typedef struct		s_xy {
 	double x;
@@ -106,6 +105,14 @@ typedef struct s_texture
 	int		*texture;
 } t_texture;
 
+typedef struct s_sprite
+{
+	t_xy transform;
+	double invDet;
+	int screen_x;
+	int vMoveScreen;
+} t_sprite;
+
 typedef struct s_color
 {
 	int red;
@@ -141,8 +148,7 @@ typedef struct		s_info
 	t_img	img;
 	int		buf[WIN_HEIGHT][WIN_WIDTH];
 
-	t_texture texture[4];
-	t_texture s_texture;
+	t_texture texture[5];
 
 	int		floor_color;
 	int		ceil_color;
@@ -160,13 +166,18 @@ typedef struct		s_info
 	double	zBuffer[WIN_WIDTH];
 }					t_info;
 
-typedef struct	s_camera
+typedef struct s_wall
 {
-	t_xy	pos;
-	t_xy	dir;
-	t_xy	x_dir;
-	t_xy	plane;
-}				t_camera;
+	int lineHeight;
+	int drawStart;
+	int drawEnd;
+	double wallX; // 벽과 double  거리
+	double step_;
+	int		texY;
+	int		texX;
+	double	texPos;
+	int		color;
+} t_wall;
 
 
 # include <unistd.h>
@@ -222,5 +233,10 @@ int		init_texture(t_info *info);
 
 void	calc_ray(t_info *info, t_ray *ray, int x);
 void	draw_wall(t_info *info, t_ray *ray, int x);
+
+void free_texture_path(t_info *info);
+void free_texture(t_info *info);
+
+void draw_sprite(t_info *info);
 
 #endif

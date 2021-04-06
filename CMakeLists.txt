@@ -31,6 +31,7 @@ add_executable(
         core/texture.c
         core/ray.c
         core/draw_wall.c
+        core/sprite.c
 )
 
 target_link_libraries(cub3d "-framework AppKit" "-framework OpenGL" "mlx")

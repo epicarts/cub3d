@@ -28,6 +28,6 @@ int identifier_texture(t_info *info, char** list)
 	else if (!ft_strcmp(list[0], "EA"))
 		info->texture[EA].texture_path = ft_strdup(list[1]);
 	else if (!ft_strcmp(list[0], "S"))
-		info->s_texture.texture_path = ft_strdup(list[1]);
+		info->texture[S].texture_path = ft_strdup(list[1]);
 	return (1);
 }
