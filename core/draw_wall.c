@@ -1,7 +1,7 @@
 
 #include "../cub3d.h"
 
-void init_wall(t_info *info, t_wall *w, t_ray *ray)
+void init_wall(t_info *info, t_wall_calc *w, t_ray *ray)
 {
 	w->lineHeight = (int)(WIN_HEIGHT / ray->perp_wall_dist); //거리에 반비례. 벽의 높이를 구함.
 	w->drawStart = -w->lineHeight / 2 + WIN_HEIGHT / 2; //텍스쳐의 시작 위치로 활용가능.
@@ -27,10 +27,12 @@ void init_wall(t_info *info, t_wall *w, t_ray *ray)
 
 void draw_wall(t_info *info, t_ray *ray, int x)
 {
-	t_wall	w;
+	t_wall_calc	w;
+	int y;
 
 	init_wall(info, &w, ray);
-	for (int y = w.drawStart; y <= w.drawEnd; y++) // y좌표를 그린다.
+	y = w.drawStart - 1;
+	while (++y <= w.drawEnd)// y좌표를 그린다.
 	{
 		w.texY = (int)w.texPos & (TEX_HEIGHT - 1);
 		w.texPos += w.step_;	// 위치에 맞는 데이터를 가져옴.

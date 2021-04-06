@@ -46,7 +46,7 @@ void DDA_algorithm(t_info *info, t_ray *ray)
 			ray->map.y += (int)ray->step.y;//ray 오른쪽으로 왼쪽으로 움직이는지. 기울기가 음수 양수
 			ray->side = 1; // 가로선과 부딪힘.
 		}
-		if (info->world_map[(int)ray->map.x][(int)ray->map.y] > 0) // 벽은 1로 표현되어짐. todo
+		if (info->world_map[(int)ray->map.x][(int)ray->map.y] == 1) // 벽은 1로 표현되어짐. todo
 			hit = 1;
 	}
 }

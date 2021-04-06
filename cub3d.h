@@ -41,6 +41,7 @@
 
 
 //parameters for scaling and moving the sprites
+//uDiv = 2, vDiv = 2, vMove = 0.0 일 때 스프라이트는 절반 크기
 #define uDiv 1
 #define vDiv 1
 #define vMove 0.0
@@ -105,12 +106,24 @@ typedef struct s_texture
 	int		*texture;
 } t_texture;
 
-typedef struct s_sprite
+typedef struct s_sprite_calc
 {
 	t_xy transform;
 	double invDet;
 	int screen_x;
 	int vMoveScreen;
+	int spriteHeight;
+	int drawStartY;
+	int drawStartX;
+	int drawEndY;
+	int drawEndX;
+	int spriteWidth;
+} t_sprite_calc;
+
+typedef struct s_sprite
+{
+	t_xy pos; //sprite 위치
+
 } t_sprite;
 
 typedef struct s_color
@@ -164,9 +177,15 @@ typedef struct		s_info
 	int win_y;
 
 	double	zBuffer[WIN_WIDTH];
+
+	t_xy *sprite;
+	int sprite_count;
+	int *sprite_order;
+	double *sprite_distance;
+
 }					t_info;
 
-typedef struct s_wall
+typedef struct s_wall_calc
 {
 	int lineHeight;
 	int drawStart;
@@ -177,7 +196,13 @@ typedef struct s_wall
 	int		texX;
 	double	texPos;
 	int		color;
-} t_wall;
+} t_wall_calc;
+
+typedef struct		s_pair
+{
+	double	first;
+	int		second;
+}					t_pair;
 
 
 # include <unistd.h>
@@ -237,6 +262,12 @@ void	draw_wall(t_info *info, t_ray *ray, int x);
 void free_texture_path(t_info *info);
 void free_texture(t_info *info);
 
-void draw_sprite(t_info *info);
+void draw_sprites(t_info *info);
+
+void free_map(t_info *info);
+int malloc_sprite(t_info *info);
+void free_sprite(t_info *info);
+void add_sprite_pos(t_info *info);
+
 
 #endif

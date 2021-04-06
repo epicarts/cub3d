@@ -151,30 +151,30 @@ void move(t_info *info)
 {
 	if (info->key.w)
 	{
-		if (!info->world_map[(int)(info->pos.x + info->dir.x * info->move_speed)][(int)(info->pos.y)])
+		if (!(info->world_map[(int)(info->pos.x + info->dir.x * info->move_speed)][(int)(info->pos.y)] == 1))
 			info->pos.x += info->dir.x * info->move_speed;
-		if (!info->world_map[(int)(info->pos.x)][(int)(info->pos.y + info->dir.y * info->move_speed)])
+		if (!(info->world_map[(int)(info->pos.x)][(int)(info->pos.y + info->dir.y * info->move_speed)] == 1))
 			info->pos.y += info->dir.y * info->move_speed;
 	}
 	else if (info->key.s)
 	{
-		if (!info->world_map[(int)(info->pos.x - info->dir.x * info->move_speed)][(int)(info->pos.y)])
+		if (!(info->world_map[(int)(info->pos.x - info->dir.x * info->move_speed)][(int)(info->pos.y)] == 1))
 			info->pos.x -= info->dir.x * info->move_speed;
-		if (!info->world_map[(int)(info->pos.x)][(int)(info->pos.y - info->dir.y * info->move_speed)])
+		if (!(info->world_map[(int)(info->pos.x)][(int)(info->pos.y - info->dir.y * info->move_speed)] == 1))
 			info->pos.y -= info->dir.y * info->move_speed;
 	}
 	else if (info->key.d)
 	{
-		if (!info->world_map[(int)(info->pos.x)][(int)(info->pos.y - info->dir.x * info->move_speed)])
+		if (!(info->world_map[(int)(info->pos.x)][(int)(info->pos.y - info->dir.x * info->move_speed)] == 1))
 			info->pos.y -= info->dir.x * info->move_speed;
-		if (!info->world_map[(int)(info->pos.x + info->dir.y * info->move_speed)][(int)(info->pos.y)])
+		if (!(info->world_map[(int)(info->pos.x + info->dir.y * info->move_speed)][(int)(info->pos.y)] == 1))
 			info->pos.x += info->dir.y * info->move_speed;
 	}
 	else if (info->key.a)
 	{
-		if (!info->world_map[(int)(info->pos.x)][(int)(info->pos.y + info->dir.x * info->move_speed)])
+		if (!(info->world_map[(int)(info->pos.x)][(int)(info->pos.y + info->dir.x * info->move_speed)] == 1))
 			info->pos.y += info->dir.x * info->move_speed;
-		if (!info->world_map[(int)(info->pos.x - info->dir.y * info->move_speed)][(int)(info->pos.y)])
+		if (!(info->world_map[(int)(info->pos.x - info->dir.y * info->move_speed)][(int)(info->pos.y)] == 1))
 			info->pos.x -= info->dir.y * info->move_speed;
 	}
 }
@@ -226,7 +226,7 @@ int main_loop(t_info *info)
 		calc_ray(info, &ray, x);	// init ray
 		draw_wall(info, &ray, x); // 벽 그리기.
 	}
-	draw_sprite(info);
+	draw_sprites(info);
 
 	put_draw(info);
 
@@ -248,6 +248,18 @@ int			main(int argc, char *argv[])
 		exit(0);
 	//map_init(&info, argv[1]); //맵 초기화
 	read_map(&info, "./map.cub");
+	if (malloc_sprite(&info))
+	{
+		printf("sprite실패");
+		free_map(&info); //위에서 맵을 동적할당했으므로 free
+		exit(-1);
+	}
+
+	//todo 삭제.
+	for (int i = 0; i < info.sprite_count; i++)
+	{
+		printf("(%f,%f)\n", info.sprite[i].y, info.sprite[i].x);
+	}
 
 	init_info(&info);
 
@@ -264,6 +276,8 @@ int			main(int argc, char *argv[])
 	{
 		printf("texture 초기화 실패");
 		free_texture_path(&info);
+		free_map(&info);
+		free_sprite(&info);
 		exit(-1);
 	}
 	if (load_textures(&info))
@@ -271,7 +285,9 @@ int			main(int argc, char *argv[])
 		printf("texture 로드 실패");
 		free_texture_path(&info);
 		free_texture(&info);
-		//todo free
+		free_sprite(&info);
+		free_map(&info);
+		//todo free check
 		exit(-1);
 	}
 

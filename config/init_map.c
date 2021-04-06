@@ -25,6 +25,16 @@ int ** malloc_map(t_info *info)
 	return map;
 }
 
+void free_map(t_info *info)
+{
+	int i;
+
+	i = 0;
+	while (i < info->map_height)
+		free(info->world_map[i]);
+	free(info->world_map);
+}
+
 void init_dir(t_info *info, char c)
 {
 	if (c == 'N')
@@ -61,7 +71,7 @@ void add_array_map(t_info *info, const char *line, int height)
 		else if (line[i] == '1')
 			info->world_map[height][i] = 1;
 		else if (line[i] == '2')
-			info->world_map[height][i] = 2; //todo 2로 다시 바꿔야함. sprite
+			info->world_map[height][i] = 2;
 		else if (line[i] == 'N' || line[i] == 'S' || line[i] == 'E' || line[i] == 'W')
 		{
 			init_dir(info, line[i]); //사용자 방향 초기화.
