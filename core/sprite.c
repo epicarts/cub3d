@@ -34,21 +34,24 @@ void draw_sprite(t_info *info, t_xy sprite)
 
 	init_sprite(info, &sc, &sprite);
 	x = sc.drawStartX - 1;
-	while (++x < sc.drawEndX)
+	while (++x <= sc.drawEndX)
 	{
-		int texX = (int)((256 * (x - (-sc.spriteWidth / 2 + sc.screen_x)) * TEX_WIDTH / sc.spriteWidth) / 256);
+		sc.texX = (int)((256 * (x - (-sc.spriteWidth / 2 + sc.screen_x)) * TEX_WIDTH / sc.spriteWidth) / 256);
 		// sprite.transform.y > 0 음수면 반대쪽 카메라에 보임.
 		// && stripe > 0 && stripe < WIN_WIDTH  화면에 있습니다. 왼쪽 오른쪽인듯 ? on the screen
 		// sprite.transform.y < info->zBuffer[stripe] => 벽 뒤에 있는지 앞에 있는지 판별. 이전에 저장해놓은 벽과 카메라 수선의 발사이즈.
-		if (sc.transform.y > 0 && x > 0 && x < WIN_WIDTH && sc.transform.y < info->zBuffer[x])
+		if (sc.transform.y > 0 && x >= 0 && x < WIN_WIDTH && sc.transform.y < info->zBuffer[x])
 			y = sc.drawStartY - 1;
-		while (++y < sc.drawEndY)
+		while (++y <= sc.drawEndY)
 		{
-			int d = (y - sc.vMoveScreen) * 256 - WIN_HEIGHT * 128 + sc.spriteHeight * 128;//256 and 128 factors to avoid floats ??? 먼지 모르겟음.
-			int texY = ((d * TEX_HEIGHT) / sc.spriteHeight) / 256;
-			int color = info->texture[S].texture[TEX_WIDTH * texY + texX]; //텍스쳐에서 값들을 가져옴.
-			if((color & 0x00FFFFFF) != 0) // 검은색이 아닐경우.
-				info->buf[y][x] = color; // 픽셀 색깔로 칠함.
+			sc.d = (y - sc.vMoveScreen) * 256 - WIN_HEIGHT * 128 + sc.spriteHeight * 128;//256 and 128 factors to avoid floats ??? 먼지 모르겟음.
+			sc.texY = ((sc.d * TEX_HEIGHT) / sc.spriteHeight) / 256;
+			if (0 <= TEX_WIDTH * sc.texY + sc.texX) // 버그 방지.
+			{
+				sc.color = info->texture[S].texture[TEX_WIDTH * sc.texY + sc.texX]; //텍스쳐에서 값들을 가져옴.
+				if((sc.color & 0x00FFFFFF) != 0) // 검은색이 아닐경우.
+					info->buf[y][x] = sc.color; // 픽셀 색깔로 칠함.
+			}
 		}
 	}
 }

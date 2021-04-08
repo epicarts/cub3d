@@ -25,7 +25,7 @@ int	load_image(t_info *info, int *texture, char *path, t_img *img)
 
 	if (!(img->img_ptr = mlx_xpm_file_to_image(info->mlx_ptr, path, &img->width, &img->height)))
 		return (-1);
-	if (!(	img->data = (int *)mlx_get_data_addr(img->img_ptr, &img->bpp, &img->size_line, &img->endian)))
+	if (!(img->data = (int *)mlx_get_data_addr(img->img_ptr, &img->bpp, &img->size_line, &img->endian)))
 		return (-1);
 	y = 0;
 	while (y < img->height)

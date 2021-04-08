@@ -212,7 +212,6 @@ int main_loop(t_info *info)
 	draw_sprites(info);
 
 	put_draw(info);
-
 	//update 로직. 키가 업데이트 되었을때 화면을 바꿔야함.
 	//		update_screen(game);
 	//		update_window(game);

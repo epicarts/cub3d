@@ -118,13 +118,11 @@ typedef struct s_sprite_calc
 	int drawEndY;
 	int drawEndX;
 	int spriteWidth;
+	int d;
+	int texY;
+	int texX;
+	int color;
 } t_sprite_calc;
-
-typedef struct s_sprite
-{
-	t_xy pos; //sprite 위치
-
-} t_sprite;
 
 typedef struct s_color
 {
