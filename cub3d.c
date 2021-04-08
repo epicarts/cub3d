@@ -191,22 +191,6 @@ void	put_draw(t_info *info)
 	mlx_put_image_to_window(info->mlx_ptr, info->win, info->img.img_ptr, 0, 0);
 }
 
-void draw_floor_ceiling(t_info *info, t_ray *ray, int x)
-{
-	//255, 255, 255
-	int y;
-
-	y = -1;
-	while (++y < WIN_HEIGHT)
-	{
-		//바닥.
-		info->buf[y][x] = info->floor_color;
-		//천장
-		info->buf[WIN_HEIGHT - y - 1][x] = info->ceil_color;
-	}
-}
-
-
 int main_loop(t_info *info)
 {
 
@@ -222,7 +206,6 @@ int main_loop(t_info *info)
 	x = -1; // 0 ~ 최대폭 까지
 	while (++x < WIN_WIDTH)
 	{
-		draw_floor_ceiling(info, &ray, x);
 		calc_ray(info, &ray, x);	// init ray
 		draw_wall(info, &ray, x); // 벽 그리기.
 	}

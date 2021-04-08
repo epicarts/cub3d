@@ -268,6 +268,6 @@ void free_map(t_info *info);
 int malloc_sprite(t_info *info);
 void free_sprite(t_info *info);
 void add_sprite_pos(t_info *info);
-
-
+void draw_ceiling(t_info *info, int x, t_wall_calc w);
+void draw_floor(t_info *info, int x, t_wall_calc w);
 #endif

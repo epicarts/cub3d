@@ -9,7 +9,7 @@ void init_wall(t_info *info, t_wall_calc *w, t_ray *ray)
 		w->drawStart = 0;
 	w->drawEnd = w->lineHeight / 2 + WIN_HEIGHT / 2; // 끝나는 높이 좌표.
 	if(w->drawEnd >= WIN_HEIGHT) // 높이가 초과될경우 화면의 가장 끝에 보이도록.
-		w->drawEnd = WIN_HEIGHT - 1;
+		w->drawEnd = WIN_HEIGHT - 1; // 599가 됨.
 	if (ray->side == 0)
 		w->wallX = info->pos.y + ray->perp_wall_dist * ray->ray_dir.y;
 	else
@@ -31,8 +31,8 @@ void draw_wall(t_info *info, t_ray *ray, int x)
 	int y;
 
 	init_wall(info, &w, ray);
-	y = w.drawStart - 1;
-	while (++y <= w.drawEnd)// y좌표를 그린다.
+	y = w.drawStart;
+	while (y <= w.drawEnd)// y좌표를 그린다. 0 ~ drawEnd(599)
 	{
 		w.texY = (int)w.texPos & (TEX_HEIGHT - 1);
 		w.texPos += w.step_;	// 위치에 맞는 데이터를 가져옴.
@@ -51,6 +51,9 @@ void draw_wall(t_info *info, t_ray *ray, int x)
 				w.color = info->texture[SO].texture[TEX_HEIGHT * w.texY + w.texX]; // 남쪽
 		}
 		info->buf[y][x] = w.color;
+		y++;
 	}
+	draw_ceiling(info, x, w);
+	draw_floor(info, x, w);
 	info->zBuffer[x] = ray->perp_wall_dist; 	// 각 레이캐스팅의 수선의 발 정보들을 저장해놓는다.
 }
