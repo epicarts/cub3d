@@ -34,6 +34,7 @@ add_executable(
         core/sprite.c
         core/init_sprite.c
         core/draw_floor_ceiling.c
+        config/map_check.c
 )
 
 target_link_libraries(cub3d "-framework AppKit" "-framework OpenGL" "mlx")

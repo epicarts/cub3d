@@ -26,6 +26,7 @@
 # define KEY_LEFT			123
 # define KEY_RIGHT			124
 
+# define VISITED	9
 # define WIN_WIDTH 800
 # define WIN_HEIGHT 600
 
@@ -50,6 +51,11 @@ typedef struct		s_xy {
 	double x;
 	double y;
 }					t_xy;
+
+typedef struct		s_int_xy {
+	int x;
+	int y;
+}					t_int_xy;
 
 typedef struct 	s_ray {
 	int		side;
@@ -138,6 +144,14 @@ typedef struct s_dir_check
 	int s;
 	int e;
 } t_dir_check;
+
+typedef struct s_map_check
+{
+	t_int_xy map_size;
+	int **map;
+	t_int_xy dir[4];
+	int result;
+} t_map_check;
 
 typedef struct		s_info
 {
@@ -240,6 +254,7 @@ void free_2d_malloc(char **s);
 int is_map(int c);
 int is_map_in_line(char *line);
 void set_xy(t_xy *xy, double x, double y);
+void set_int_xy(t_int_xy *xy, int x, int y);
 
 void count_map_width_height(t_info *info, char *line);
 int init_dir_duplicate(t_info *info);
@@ -268,4 +283,5 @@ void free_sprite(t_info *info);
 void add_sprite_pos(t_info *info);
 void draw_ceiling(t_info *info, int x, t_wall_calc w);
 void draw_floor(t_info *info, int x, t_wall_calc w);
+int map_check(int **src_map, t_xy pos, int map_y, int map_x);
 #endif

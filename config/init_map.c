@@ -31,7 +31,10 @@ void free_map(t_info *info)
 
 	i = 0;
 	while (i < info->map_height)
+	{
 		free(info->world_map[i]);
+		i++;
+	}
 	free(info->world_map);
 }
 
@@ -90,7 +93,10 @@ int init_map(t_info *info, int fd)
 	char *line;
 
 	if (!(info->world_map = malloc_map(info)))
-		return (0);
+	{
+		printf("메모리 할당 실패;");
+		return (-1);
+	}
 	height = 0;
 	while (1)
 	{
@@ -105,21 +111,10 @@ int init_map(t_info *info, int fd)
 		if (i <= 0)
 			break;
 	}
+	if (map_check(info->world_map, info->pos, info->map_height, info->map_width))
+	{
+		printf("dfs검증 실패\n");
+		return (-1);
+	}
 	return (0);
-}
-
-
-// 맵 체크. 리턴 1
-int map_check()
-{
-
-	//# define IN_MAP(p, c)		(CHECK_TOP(p) && CHECK_BOT(p, c))
-
-	//# define CHECK_TOP(p)		(FINT(p.x) >= 0 && FINT(p.y) >= 0)
-	//# define CHECK_BOT(p, c)	(FINT(p.x) < (c).columns && FINT(p.y) < (c).rows)
-
-	// # define FINT(x)			((int)floor(x))
-
-	//# define MAP(p, c) 			(c).map[(FINT(p.y) * (c).columns) + FINT(p.x)]
-	//# define MAP_XY(x, y, c) 	(c).map[(FINT(y) * (c).columns) + FINT(x)]
 }
