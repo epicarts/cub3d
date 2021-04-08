@@ -31,6 +31,7 @@ void draw_sprite(t_info *info, t_xy sprite)
 	t_sprite_calc sc;
 	int y;
 	int x;
+	int tex_idx;
 
 	init_sprite(info, &sc, &sprite);
 	x = sc.drawStartX - 1;
@@ -46,7 +47,8 @@ void draw_sprite(t_info *info, t_xy sprite)
 		{
 			sc.d = (y - sc.vMoveScreen) * 256 - WIN_HEIGHT * 128 + sc.spriteHeight * 128;//256 and 128 factors to avoid floats ??? 먼지 모르겟음.
 			sc.texY = ((sc.d * TEX_HEIGHT) / sc.spriteHeight) / 256;
-			if (0 <= TEX_WIDTH * sc.texY + sc.texX) // 버그 방지.
+			tex_idx = TEX_WIDTH * sc.texY + sc.texX;
+			if (0 <= tex_idx && tex_idx < TEX_WIDTH * TEX_HEIGHT - 1) // 버그 방지.
 			{
 				sc.color = info->texture[S].texture[TEX_WIDTH * sc.texY + sc.texX]; //텍스쳐에서 값들을 가져옴.
 				if((sc.color & 0x00FFFFFF) != 0) // 검은색이 아닐경우.
