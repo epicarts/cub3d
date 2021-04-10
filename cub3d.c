@@ -92,7 +92,6 @@ void init_info(t_info *info)
 			info->mlx_ptr, WIN_WIDTH, WIN_HEIGHT, "cub3d")))
 		exit(0); //실패시 종료
 	set_xy(&info->move, 0, 0);
-	set_xy(&info->x_move, 0, 0);
 
 	//회전 및 움직임 정도.
 	info->move_speed = 0.05;
@@ -146,38 +145,7 @@ void rotate(t_info *info)
 	//	planeY = oldPlaneX * sin(-rotSpeed) + planeY * cos(-rotSpeed);
 }
 
-//위 아래로 움직여야함.
-void move(t_info *info)
-{
-	if (info->key.w)
-	{
-		if (!(info->world_map[(int)(info->pos.x + info->dir.x * info->move_speed)][(int)(info->pos.y)] == 1))
-			info->pos.x += info->dir.x * info->move_speed;
-		if (!(info->world_map[(int)(info->pos.x)][(int)(info->pos.y + info->dir.y * info->move_speed)] == 1))
-			info->pos.y += info->dir.y * info->move_speed;
-	}
-	else if (info->key.s)
-	{
-		if (!(info->world_map[(int)(info->pos.x - info->dir.x * info->move_speed)][(int)(info->pos.y)] == 1))
-			info->pos.x -= info->dir.x * info->move_speed;
-		if (!(info->world_map[(int)(info->pos.x)][(int)(info->pos.y - info->dir.y * info->move_speed)] == 1))
-			info->pos.y -= info->dir.y * info->move_speed;
-	}
-	else if (info->key.d)
-	{
-		if (!(info->world_map[(int)(info->pos.x)][(int)(info->pos.y - info->dir.x * info->move_speed)] == 1))
-			info->pos.y -= info->dir.x * info->move_speed;
-		if (!(info->world_map[(int)(info->pos.x + info->dir.y * info->move_speed)][(int)(info->pos.y)] == 1))
-			info->pos.x += info->dir.y * info->move_speed;
-	}
-	else if (info->key.a)
-	{
-		if (!(info->world_map[(int)(info->pos.x)][(int)(info->pos.y + info->dir.x * info->move_speed)] == 1))
-			info->pos.y += info->dir.x * info->move_speed;
-		if (!(info->world_map[(int)(info->pos.x - info->dir.y * info->move_speed)][(int)(info->pos.y)] == 1))
-			info->pos.x -= info->dir.y * info->move_speed;
-	}
-}
+
 
 void	put_draw(t_info *info)
 {
@@ -193,16 +161,15 @@ void	put_draw(t_info *info)
 
 int main_loop(t_info *info)
 {
-
-	//keyboard rotate
-	if (info->key.w || info->key.s || info->key.a || info->key.d)
-		move(info);
-	if (info->key.r || info->key.l)
-		rotate(info);
-
 	t_ray	ray;
 	int x;
 
+	if (info->key.w || info->key.s)
+		move_front_back(info);
+	else if (info->key.a || info->key.d)
+		move_left_right(info);
+	if (info->key.r || info->key.l)
+		rotate(info);
 	x = -1; // 0 ~ 최대폭 까지
 	while (++x < WIN_WIDTH)
 	{
@@ -210,11 +177,9 @@ int main_loop(t_info *info)
 		draw_wall(info, &ray, x); // 벽 그리기.
 	}
 	draw_sprites(info);
-
+	if (info->screenshot_flag == 1)
+		screenshot(info);
 	put_draw(info);
-	//update 로직. 키가 업데이트 되었을때 화면을 바꿔야함.
-	//		update_screen(game);
-	//		update_window(game);
 	return (0);
 }
 
@@ -223,13 +188,8 @@ int			main(int argc, char *argv[])
 {
 	t_info	info;
 
-	// 인자가 두개 이상왔는데, save가 옵션이 아닐경우. 종료
-	if (argc >= 3 && ft_strcmp(argv[2] , "--save")) //2번쨰 인자가 올경우
-		exit(0);
-	if (argc == 1) // 인자가 아무것도 없으면 종료.
-		exit(0);
-	//map_init(&info, argv[1]); //맵 초기화
-	read_map(&info, "./map.cub");
+	arg_parse(&info, argc, argv);
+	read_map(&info, info.map_path);
 	if (malloc_sprite(&info))
 	{
 		printf("sprite실패");

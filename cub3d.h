@@ -27,8 +27,8 @@
 # define KEY_RIGHT			124
 
 # define VISITED	9
-# define WIN_WIDTH 800
-# define WIN_HEIGHT 600
+# define WIN_WIDTH 501
+# define WIN_HEIGHT 333
 
 #define TEX_WIDTH 64
 #define TEX_HEIGHT 64
@@ -165,7 +165,6 @@ typedef struct		s_info
 	t_key	key;
 
 	t_xy	move; //움직임? => 키보드 눌릴 시 사용.
-	t_xy	x_move; // x축 움직임? => 키보드 눌릴 시 사용. 뭘까
 
 	double	move_speed;
 	double	rotate_speed; // 회전시 필요.
@@ -195,6 +194,8 @@ typedef struct		s_info
 	int *sprite_order;
 	double *sprite_distance;
 
+	int	screenshot_flag;
+	char *map_path;
 }					t_info;
 
 typedef struct s_wall_calc
@@ -284,4 +285,13 @@ void add_sprite_pos(t_info *info);
 void draw_ceiling(t_info *info, int x, t_wall_calc w);
 void draw_floor(t_info *info, int x, t_wall_calc w);
 int map_check(int **src_map, t_xy pos, int map_y, int map_x);
+
+void move_front_back(t_info *info);
+void move_left_right(t_info *info);
+
+void arg_parse(t_info *info, int argc, char *argv[]);
+
+void screenshot(t_info *info);
+void	ft_bzero(void *s, size_t n);
+
 #endif

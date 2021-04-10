@@ -11,10 +11,11 @@ void read_map(t_info *info, char *map_path)
 	check_list_init(info);
 	init_dir_duplicate(info);
 	//파일 디스크립터 얻기
-	if (!(fd = open(map_path, O_RDONLY))) {
+	if ((fd = open(map_path, O_RDONLY)) == -1) {
 		perror("Error in open"); // todo exit program
 		exit(0);
 	}
+	printf("%d", fd);
 	if (init_identifier(info, fd))
 	{
 		perror("identifier 읽기 실패");
