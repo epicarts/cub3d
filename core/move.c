@@ -46,3 +46,23 @@ void move_left_right(t_info *info)
 			info->pos.x -= info->dir.y * info->move_speed;
 	}
 }
+
+void rotate(t_info *info)
+{
+	int flag;
+	double old;
+
+	flag = info->key.l == 1 ? 1 : -1;
+
+	old = info->dir.x;
+	info->dir.x = info->dir.x * cos(info->rotate_speed * flag)
+				  - info->dir.y * sin(info->rotate_speed * flag);
+	info->dir.y = old * sin(info->rotate_speed * flag)
+				  + info->dir.y * cos(info->rotate_speed * flag);
+
+	old = info->plane.x;
+	info->plane.x = info->plane.x * cos(info->rotate_speed * flag)
+					- info->plane.y * sin(info->rotate_speed * flag);
+	info->plane.y = old * sin(info->rotate_speed * flag)
+					+ info->plane.y * cos(info->rotate_speed * flag);
+}

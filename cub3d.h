@@ -13,8 +13,9 @@
 
 #include "mlx/mlx.h"
 
-#define X_EVENT_KEY_PRESS		2
-#define X_EVENT_KEY_release		3
+# define X_EVENT_KEY_PRESS		2
+# define X_EVENT_KEY_RELEASE		3
+# define X_EVENT_EXIT			17
 #define X_EVENT_KEY_EXIT		17 //exit key code
 
 #define KEY_ESC			53
@@ -294,4 +295,9 @@ void arg_parse(t_info *info, int argc, char *argv[]);
 void screenshot(t_info *info);
 void	ft_bzero(void *s, size_t n);
 
+int		key_press(int keycode, t_info *info);
+int		key_release(int keycode, t_info *info);
+void	rotate(t_info *info);
+
+int exit_win(t_info *info);
 #endif

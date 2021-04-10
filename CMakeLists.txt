@@ -39,6 +39,7 @@ add_executable(
         config/arg_parser.c
         core/screenshot.c
         utils/ft_bzero.c
+        core/hook_event.c
 )
 
 target_link_libraries(cub3d "-framework AppKit" "-framework OpenGL" "mlx")

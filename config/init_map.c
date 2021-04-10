@@ -85,7 +85,6 @@ void add_array_map(t_info *info, const char *line, int height)
 	}
 }
 
-
 int init_map(t_info *info, int fd)
 {
 	int i;

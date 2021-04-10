@@ -5,87 +5,7 @@
 #include <math.h>
 #include "cub3d.h"
 
-void map_validation();
-
-int main_loop();
-
-int key_release();
-
-
-
-
-
-void draw_wall(t_info *info, t_ray *ray, int x);
-
-
-void exit_game()
-{
-
-}
-
-
-//keycode는 내가 누른 키보드 입력값.
-int				key_press(int keycode, t_info *info) {
-	if (keycode == KEY_ESC) //프로그램 종료.
-		exit(0);
-	else if (keycode == KEY_W)
-		info->key.w = 1;
-	else if (keycode == KEY_A)
-		info->key.a = 1;
-	else if (keycode == KEY_S)
-		info->key.s = 1;
-	else if (keycode == KEY_D)
-		info->key.d = 1;
-	else if (keycode == KEY_LEFT)
-		info->key.l = 1;
-	else if (keycode == KEY_RIGHT)
-		info->key.r = 1;
-	return (0);
-}
-
-//키보드를 땠을때.
-int key_release(int keycode, t_info *info) {
-	if (keycode == KEY_ESC) //프로그램 종료.
-		exit(0);
-	else if (keycode == KEY_W)
-		info->key.w = 0;
-	else if (keycode == KEY_A)
-		info->key.a = 0;
-	else if (keycode == KEY_S)
-		info->key.s = 0;
-	else if (keycode == KEY_D)
-		info->key.d = 0;
-	else if (keycode == KEY_LEFT)
-		info->key.l = 0;
-	else if (keycode == KEY_RIGHT)
-		info->key.r = 0;
-	return (0);
-}
-
-//	// W 버튼일때 x증가.
-//	if (keycode == KEY_W)//Action when W key pressed
-//		param->x++;
-//	else if (keycode == KEY_S) //s키 일때,
-//		param->x--;
-//	else if (keycode == KEY_A)
-
-// 눌리고 있을때로 추정됨.
-//int		key_release(int key, t_info *info)
-//{
-//
-//}
-
-//t_xy	dir; //방향
-//t_xy	pos; //위치
-//t_xy	plane; //평면
-//t_xy	move; //움직임? => 키보드 눌릴 시 사용.
-//t_xy	x_move; // x축 움직임? => 키보드 눌릴 시 사용.
-//t_xy	rotate; // 회전시 필요
-
-
-
-
-void init_info(t_info *info)
+void	init_info(t_info *info)
 {
 	//mlx초기화, 윈도우초기화
 	if (!(info->mlx_ptr = mlx_init()) || !(info->win = mlx_new_window(
@@ -104,57 +24,24 @@ void init_info(t_info *info)
 	info->key.d = 0;
 	info->key.l = 0;
 	info->key.r = 0;
-
-//	//벽, 땅 색깔 초기화
-//	info->ceil_color = rgb_to_int(120,120,0);
-//	info->floor_color = rgb_to_int(0,120,120);
 }
-
-//key_event.c todo
-//회전 행렬을 곱해야함. 방향벡터와 카메라평면벡터 둘 다 회전
-void rotate(t_info *info)
-{
-	int flag;
-	double old;
-
-//	if (info->key.a)
-//		flag = 1;
-//	else
-//		flag = -1;
-	// 오른쪽이면
-	flag = info->key.l == 1 ? 1 : -1;
-
-	//방향벡터 회전
-	old = info->dir.x;
-	info->dir.x = info->dir.x * cos(info->rotate_speed * flag)
-			- info->dir.y * sin(info->rotate_speed * flag);
-	info->dir.y = old * sin(info->rotate_speed * flag)
-			+ info->dir.y * cos(info->rotate_speed * flag);
-
-	old = info->plane.x;
-	info->plane.x = info->plane.x * cos(info->rotate_speed * flag)
-				  - info->plane.y * sin(info->rotate_speed * flag);
-	info->plane.y = old * sin(info->rotate_speed * flag)
-				  + info->plane.y * cos(info->rotate_speed * flag);
-
-	//	double oldDirX = dirX;
-	//	dirX = dirX * cos(-rotSpeed) - dirY * sin(-rotSpeed);
-	//	dirY = oldDirX * sin(-rotSpeed) + dirY * cos(-rotSpeed);
-	//	double oldPlaneX = planeX;
-	//	planeX = planeX * cos(-rotSpeed) - planeY * sin(-rotSpeed);
-	//	planeY = oldPlaneX * sin(-rotSpeed) + planeY * cos(-rotSpeed);
-}
-
 
 
 void	put_draw(t_info *info)
 {
-	for (int y = 0; y < WIN_HEIGHT; y++)
+	int y;
+	int x;
+
+	y = 0;
+	while (y < WIN_HEIGHT)
 	{
-		for (int x = 0; x < WIN_WIDTH; x++)
+		x = 0;
+		while (x < WIN_WIDTH)
 		{
 			info->img.data[y * WIN_WIDTH + x] = info->buf[y][x];
+			x++;
 		}
+		y++;
 	}
 	mlx_put_image_to_window(info->mlx_ptr, info->win, info->img.img_ptr, 0, 0);
 }
@@ -173,7 +60,7 @@ int main_loop(t_info *info)
 	x = -1; // 0 ~ 최대폭 까지
 	while (++x < WIN_WIDTH)
 	{
-		calc_ray(info, &ray, x);	// init ray
+		calc_ray(info, &ray, x); // init ray
 		draw_wall(info, &ray, x); // 벽 그리기.
 	}
 	draw_sprites(info);
@@ -182,7 +69,6 @@ int main_loop(t_info *info)
 	put_draw(info);
 	return (0);
 }
-
 
 int			main(int argc, char *argv[])
 {
@@ -238,9 +124,9 @@ int			main(int argc, char *argv[])
 
 	//키 이벤트, 키 함수.
 	mlx_hook(info.win, X_EVENT_KEY_PRESS, 0, &key_press, &info);
-	mlx_hook(info.win, X_EVENT_KEY_release, 0, &key_release, &info);
+	mlx_hook(info.win, X_EVENT_KEY_RELEASE, 0, &key_release, &info);
+	mlx_hook(info.win, X_EVENT_EXIT, 0, &exit_win, &info);
 
-	//
 	mlx_loop_hook(info.mlx_ptr, &main_loop, &info);
 
 	// 시작.
