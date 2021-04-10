@@ -84,6 +84,7 @@ void  ft_screen_check(t_info *info)
 	if (max_y < info->win_y)
 		info->win_y = max_y;
 	printf("max x: %d  max y %d\n", max_x, max_y);
+	printf("winx x: %d  winy y %d\n", info->win_x, info->win_y);
 }
 
 int	malloc_buf(t_info *info)
@@ -135,8 +136,8 @@ int			main(int argc, char *argv[])
 		printf("(%f,%f)\n", info.sprite[i].y, info.sprite[i].x);
 	}
 
+	ft_screen_check(&info); // 화면 사이즈 나오기전에 할당.
 	init_info(&info);
-	ft_screen_check(&info);
 
 	//텍스쳐가 스크린 사이즈 버퍼. => 버퍼에 저장해놓고 그림.
 	if (!malloc_buf(&info)) //todo free

@@ -42,6 +42,7 @@ int		key_release(int keycode, t_info *info)
 
 int exit_win(t_info *info)
 {
+	free_map(info);
 	//todo 전체 free
 	exit(0);
 }

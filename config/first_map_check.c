@@ -1,7 +1,7 @@
 
 #include "../cub3d.h"
 
-char *move_map_line(t_info *info, int fd)
+char *move_map_line(int fd)
 {
 	char *line;
 	int i;
@@ -27,7 +27,7 @@ char *move_map_line(t_info *info, int fd)
 	return line;
 }
 
-int read_map_end_line(t_info *info, int fd, char *line, int i)
+int read_map_end_line(int fd, char *line, int i)
 {
 	while (1) //다른게 나왔을경우 파일 끝까지 엔터밖에 없는가?
 	{
@@ -63,7 +63,7 @@ int read_map_line(t_info *info, int fd, char *line)
 		}
 		else
 		{
-			if (read_map_end_line(info, fd, line, i) == 0)
+			if (read_map_end_line(fd, line, i) == 0)
 				return (0);
 			else
 				return (-1);

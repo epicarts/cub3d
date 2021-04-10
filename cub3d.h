@@ -257,13 +257,13 @@ void set_xy(t_xy *xy, double x, double y);
 void set_int_xy(t_int_xy *xy, int x, int y);
 
 void count_map_width_height(t_info *info, char *line);
-int init_dir_duplicate(t_info *info);
+void init_dir_duplicate(t_info *info);
 int check_dir_duplicate(t_info *info);
 void count_dir_duplicate(t_info *info, const char *line);
 void check_list_init(t_info *info);
 
-char *move_map_line(t_info *info, int fd);
-int read_map_end_line(t_info *info, int fd, char *line, int i);
+char *move_map_line(int fd);
+int read_map_end_line(int fd, char *line, int i);
 int read_map_line(t_info *info, int fd, char *line);
 
 int		load_textures(t_info *info);

@@ -22,7 +22,7 @@ void read_map(t_info *info, char *map_path)
 		close(fd); // 파일 읽기 종료
 		exit(0);
 	}
-	if (!(line = move_map_line(info, fd)) || read_map_line(info, fd, line)
+	if (!(line = move_map_line(fd)) || read_map_line(info, fd, line)
 		|| check_dir_duplicate(info) || info->map_height < 3 || info->map_width < 3)
 	{
 		perror("맵을 읽어오는 도중 이상한 것을 발견함");

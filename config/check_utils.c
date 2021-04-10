@@ -7,12 +7,12 @@
 
 void count_map_width_height(t_info *info, char *line)
 {
-	if (info->map_width < ft_strlen(line))
+	if (info->map_width < (int)ft_strlen(line))
 		info->map_width = ft_strlen(line);
 	info->map_height++;
 }
 
-int init_dir_duplicate(t_info *info)
+void init_dir_duplicate(t_info *info)
 {
 	info->dir_check.n = 0;
 	info->dir_check.s = 0;
