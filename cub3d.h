@@ -28,8 +28,6 @@
 # define KEY_RIGHT			124
 
 # define VISITED	9
-# define WIN_WIDTH 501
-# define WIN_HEIGHT 333
 
 #define TEX_WIDTH 64
 #define TEX_HEIGHT 64
@@ -171,7 +169,7 @@ typedef struct		s_info
 	double	rotate_speed; // 회전시 필요.
 
 	t_img	img;
-	int		buf[WIN_HEIGHT][WIN_WIDTH];
+	int		**buf;
 
 	t_texture texture[5];
 
@@ -188,7 +186,7 @@ typedef struct		s_info
 	int win_x;
 	int win_y;
 
-	double	zBuffer[WIN_WIDTH];
+	double	*zBuffer;
 
 	t_xy *sprite;
 	int sprite_count;

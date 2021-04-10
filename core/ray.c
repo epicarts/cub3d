@@ -55,7 +55,7 @@ void	calc_ray(t_info *info, t_ray *ray, int x)
 {
 	double K; // -1 ~ 1 로 정규화. 0 일떄 -1 / x가 최대값이면 2 - 1 = 1
 
-	K = 2 * x / (double)WIN_WIDTH - 1; //ray의 방향. plane의 k배수
+	K = 2 * x / (double)info->win_x - 1; //ray의 방향. plane의 k배수
 	set_xy(&ray->ray_dir,info->dir.x + info->plane.x * K, info->dir.y + info->plane.y * K);//내림을 통해 내 현재 광선 위치.
 	set_xy(&ray->map, (int)info->pos.x, (int)info->pos.y);
 	set_xy(&ray->delta_dist, fabs(1. / ray->ray_dir.x), fabs(1. / ray->ray_dir.y));

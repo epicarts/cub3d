@@ -9,7 +9,7 @@ void	init_info(t_info *info)
 {
 	//mlx초기화, 윈도우초기화
 	if (!(info->mlx_ptr = mlx_init()) || !(info->win = mlx_new_window(
-			info->mlx_ptr, WIN_WIDTH, WIN_HEIGHT, "cub3d")))
+			info->mlx_ptr, info->win_x, info->win_y, "cub3d")))
 		exit(0); //실패시 종료
 	set_xy(&info->move, 0, 0);
 
@@ -33,12 +33,12 @@ void	put_draw(t_info *info)
 	int x;
 
 	y = 0;
-	while (y < WIN_HEIGHT)
+	while (y < info->win_y)
 	{
 		x = 0;
-		while (x < WIN_WIDTH)
+		while (x < info->win_x)
 		{
-			info->img.data[y * WIN_WIDTH + x] = info->buf[y][x];
+			info->img.data[y * info->win_x + x] = info->buf[y][x];
 			x++;
 		}
 		y++;
@@ -58,7 +58,7 @@ int main_loop(t_info *info)
 	if (info->key.r || info->key.l)
 		rotate(info);
 	x = -1; // 0 ~ 최대폭 까지
-	while (++x < WIN_WIDTH)
+	while (++x < info->win_x)
 	{
 		calc_ray(info, &ray, x); // init ray
 		draw_wall(info, &ray, x); // 벽 그리기.
@@ -68,6 +68,50 @@ int main_loop(t_info *info)
 		screenshot(info);
 	put_draw(info);
 	return (0);
+}
+
+void  ft_screen_check(t_info *info)
+{
+	int max_x;
+	int max_y;
+
+	printf("winx x: %d  winy y %d\n", info->win_x, info->win_y);
+	mlx_get_screen_size(info->mlx_ptr, &max_x, &max_y);
+	if (max_x < info->win_x)
+		info->win_x = max_x;
+	if (max_y < info->win_y)
+		info->win_y = max_y;
+	printf("max x: %d  max y %d\n", max_x, max_y);
+}
+
+int	malloc_buf(t_info *info)
+{
+	int i;
+	int j;
+
+	if (!(info->buf = (int**)malloc(sizeof(int*) * info->win_y)))
+		return (0);
+	i = 0;
+	while (i < info->win_y)
+	{
+		j = 0;
+		if (!(info->buf[i] = (int*)malloc(sizeof(int) * info->win_x)))
+			return (0);
+		while (j < info->win_x)
+		{
+			info->buf[i][j] = 0;
+			j++;
+		}
+		i++;
+	}
+	return (1);
+}
+
+int malloc_zbuf(t_info *info)
+{
+	if (!(info->zBuffer = (double *)malloc(sizeof(double) * info->win_x)))
+		return (0);
+	return (1);
 }
 
 int			main(int argc, char *argv[])
@@ -90,14 +134,19 @@ int			main(int argc, char *argv[])
 	}
 
 	init_info(&info);
+	ft_screen_check(&info);
 
 	//텍스쳐가 스크린 사이즈 버퍼. => 버퍼에 저장해놓고 그림.
-	for (int i = 0; i < WIN_HEIGHT; i++)
+	if (!malloc_buf(&info)) //todo free
 	{
-		for (int j = 0; j < WIN_WIDTH; j++)
-		{
-			info.buf[i][j] = 0;
-		}
+		printf("buf 할당 실패");
+		exit(-1);
+	}
+
+	if (!malloc_zbuf(&info)) //todo free
+	{
+		printf("zbuf 할당 실패");
+		exit(-1);
 	}
 
 	if (init_texture(&info))
@@ -119,7 +168,7 @@ int			main(int argc, char *argv[])
 		exit(-1);
 	}
 
-	info.img.img_ptr = mlx_new_image(info.mlx_ptr, WIN_WIDTH, WIN_HEIGHT);
+	info.img.img_ptr = mlx_new_image(info.mlx_ptr, info.win_x, info.win_y);
 	info.img.data = (int *)mlx_get_data_addr(info.img.img_ptr, &info.img.bpp, &info.img.size_line, &info.img.endian);
 
 	//키 이벤트, 키 함수.
@@ -133,17 +182,3 @@ int			main(int argc, char *argv[])
 	mlx_loop(info.mlx_ptr);
 	return (0);
 }
-
-// todo 스크린 자동 조절
-//https://harm-smits.github.io/42docs/libs/minilibx/prototypes.html#mlx_get_screen_size
-//int   *ft_screen_check(t_all *s)
-//{
-//	int max_x;
-//	int max_y;
-//	mlx_get_screen_size(s->mlx.ptr, &max_x, &max_y);
-//	if (max_x < s->win.x)
-//		s->win.x = max_x;
-//	if (max_y < s->win.y)
-//		s->win.y = max_y;
-//	return (mlx_new_window(s->mlx.ptr, s->win.x, s->win.y, “cub3D”));
-//}

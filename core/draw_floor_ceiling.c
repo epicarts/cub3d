@@ -17,9 +17,9 @@ void draw_floor(t_info *info, int x, t_wall_calc w)
 	int y;
 
 	if (w.drawEnd < 0) //오버플로우 시 그리지 않도록..
-		w.drawEnd = WIN_HEIGHT;
+		w.drawEnd = info->win_y;
 	y = w.drawEnd + 1;
-	while (y < WIN_HEIGHT)
+	while (y < info->win_y)
 	{
 		//바닥
 		info->buf[y][x] = info->floor_color;

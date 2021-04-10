@@ -768,7 +768,7 @@ int     mlx_destroy_window(mlx_ptr_t *mlx_ptr, mlx_win_list_t *win_to_del)
 int mlx_get_screen_size(void *mlx_ptr, int *sizex, int *sizey)
 {
 	NSRect e = [[NSScreen mainScreen] frame];
-	*sizex = (int)e.size.height;
-	*sizey = (int)e.size.width;
+	*sizey = (int)e.size.height;
+	*sizex = (int)e.size.width;
 	return (0);
 }

@@ -8,22 +8,22 @@ void init_sprite(t_info *info, t_sprite_calc *sc, t_xy *sprite)
 	sc->invDet = 1.0 / (info->plane.x * info->dir.y - info->dir.x * info->plane.y); //역행렬
 	set_xy(&sc->transform, sc->invDet * (info->dir.y * sprite->x - info->dir.x * sprite->y), //실제 화면 내부의 깊이.
 		   sc->invDet * (-info->plane.y * sprite->x + info->plane.x * sprite->y));
-	sc->screen_x = (int)((WIN_WIDTH / 2) * (1 + sc->transform.x / sc->transform.y));
-	sc->spriteHeight = (int)fabs((WIN_HEIGHT / sc->transform.y) / vDiv); //using "transformY" instead of the real distance prevents fisheye
+	sc->screen_x = (int)((info->win_x / 2) * (1 + sc->transform.x / sc->transform.y));
+	sc->spriteHeight = (int)fabs((info->win_y / sc->transform.y) / vDiv); //using "transformY" instead of the real distance prevents fisheye
 	sc->vMoveScreen = (int)(vMove / sc->transform.y);
-	sc->drawStartY = -sc->spriteHeight / 2 + WIN_HEIGHT / 2 + sc->vMoveScreen; 	//스프라이트 시작지점과 끝나는 곳. 화면의 y좌표
+	sc->drawStartY = -sc->spriteHeight / 2 + info->win_y / 2 + sc->vMoveScreen; 	//스프라이트 시작지점과 끝나는 곳. 화면의 y좌표
 	if(sc->drawStartY < 0)
 		sc->drawStartY = 0;
-	sc->drawEndY = sc->spriteHeight / 2 + WIN_HEIGHT / 2 + sc->vMoveScreen;
-	if(sc->drawEndY >= WIN_HEIGHT)
-		sc->drawEndY = WIN_HEIGHT - 1;
-	sc->spriteWidth = (int)fabs((WIN_HEIGHT / sc->transform.y) / uDiv);
+	sc->drawEndY = sc->spriteHeight / 2 + info->win_y / 2 + sc->vMoveScreen;
+	if(sc->drawEndY >= info->win_y)
+		sc->drawEndY = info->win_y - 1;
+	sc->spriteWidth = (int)fabs((info->win_y / sc->transform.y) / uDiv);
 	sc->drawStartX = -sc->spriteWidth / 2 + sc->screen_x;
 	if (sc->drawStartX < 0)
 		sc->drawStartX = 0;
 	sc->drawEndX = sc->spriteWidth / 2 + sc->screen_x;
-	if(sc->drawEndX >= WIN_WIDTH)
-		sc->drawEndX = WIN_WIDTH - 1;
+	if(sc->drawEndX >= info->win_x)
+		sc->drawEndX = info->win_x - 1;
 }
 
 void draw_sprite(t_info *info, t_xy sprite)
@@ -41,11 +41,11 @@ void draw_sprite(t_info *info, t_xy sprite)
 		// sprite.transform.y > 0 음수면 반대쪽 카메라에 보임.
 		// && stripe > 0 && stripe < WIN_WIDTH  화면에 있습니다. 왼쪽 오른쪽인듯 ? on the screen
 		// sprite.transform.y < info->zBuffer[stripe] => 벽 뒤에 있는지 앞에 있는지 판별. 이전에 저장해놓은 벽과 카메라 수선의 발사이즈.
-		if (sc.transform.y > 0 && x >= 0 && x < WIN_WIDTH && sc.transform.y < info->zBuffer[x])
+		if (sc.transform.y > 0 && x >= 0 && x < info->win_x && sc.transform.y < info->zBuffer[x])
 			y = sc.drawStartY - 1;
 		while (++y <= sc.drawEndY)
 		{
-			sc.d = (y - sc.vMoveScreen) * 256 - WIN_HEIGHT * 128 + sc.spriteHeight * 128;//256 and 128 factors to avoid floats ??? 먼지 모르겟음.
+			sc.d = (y - sc.vMoveScreen) * 256 - info->win_y * 128 + sc.spriteHeight * 128;//256 and 128 factors to avoid floats ??? 먼지 모르겟음.
 			sc.texY = ((sc.d * TEX_HEIGHT) / sc.spriteHeight) / 256;
 			tex_idx = TEX_WIDTH * sc.texY + sc.texX;
 			if (0 <= tex_idx && tex_idx < TEX_WIDTH * TEX_HEIGHT - 1) // 버그 방지.

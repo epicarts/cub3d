@@ -3,13 +3,13 @@
 
 void init_wall(t_info *info, t_wall_calc *w, t_ray *ray)
 {
-	w->lineHeight = (int)(WIN_HEIGHT / ray->perp_wall_dist); //거리에 반비례. 벽의 높이를 구함.
-	w->drawStart = -w->lineHeight / 2 + WIN_HEIGHT / 2; //텍스쳐의 시작 위치로 활용가능.
+	w->lineHeight = (int)(info->win_y / ray->perp_wall_dist); //거리에 반비례. 벽의 높이를 구함.
+	w->drawStart = -w->lineHeight / 2 + info->win_y / 2; //텍스쳐의 시작 위치로 활용가능.
 	if(w->drawStart < 0) // 시작 위치가 음수일경우 0부터 그리도록.
 		w->drawStart = 0;
-	w->drawEnd = w->lineHeight / 2 + WIN_HEIGHT / 2; // 끝나는 높이 좌표.
-	if(w->drawEnd >= WIN_HEIGHT) // 높이가 초과될경우 화면의 가장 끝에 보이도록.
-		w->drawEnd = WIN_HEIGHT - 1; // 599가 됨.
+	w->drawEnd = w->lineHeight / 2 + info->win_y / 2; // 끝나는 높이 좌표.
+	if(w->drawEnd >= info->win_y) // 높이가 초과될경우 화면의 가장 끝에 보이도록.
+		w->drawEnd = info->win_y - 1; // 599가 됨.
 	if (ray->side == 0)
 		w->wallX = info->pos.y + ray->perp_wall_dist * ray->ray_dir.y;
 	else
@@ -21,7 +21,7 @@ void init_wall(t_info *info, t_wall_calc *w, t_ray *ray)
 	if (ray->side == 1 && ray->ray_dir.y < 0)
 		w->texX = TEX_WIDTH - w->texX - 1;
 	w->step_ = 1.0 * TEX_HEIGHT / w->lineHeight; // 2.0으로 할경우 벽이 가로 두개로 나뉘어짐.
-	w->texPos = (w->drawStart - WIN_HEIGHT / 2 + w->lineHeight / 2) * w->step_;
+	w->texPos = (w->drawStart - info->win_y / 2 + w->lineHeight / 2) * w->step_;
 }
 
 
