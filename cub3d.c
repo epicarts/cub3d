@@ -76,6 +76,8 @@ void  ft_screen_check(t_info *info)
 	int max_y;
 
 	printf("winx x: %d  winy y %d\n", info->win_x, info->win_y);
+	if (info->screenshot_flag == 1)
+		return;
 	mlx_get_screen_size(info->mlx_ptr, &max_x, &max_y);
 	if (max_x < info->win_x)
 		info->win_x = max_x;
@@ -170,6 +172,9 @@ int			main(int argc, char *argv[])
 
 	info.img.img_ptr = mlx_new_image(info.mlx_ptr, info.win_x, info.win_y);
 	info.img.data = (int *)mlx_get_data_addr(info.img.img_ptr, &info.img.bpp, &info.img.size_line, &info.img.endian);
+
+	if (info.screenshot_flag == 1)
+		main_loop(&info);
 
 	//키 이벤트, 키 함수.
 	mlx_hook(info.win, X_EVENT_KEY_PRESS, 0, &key_press, &info);
