@@ -29,5 +29,6 @@ int identifier_texture(t_info *info, char** list)
 		info->texture[EA].texture_path = ft_strdup(list[1]);
 	else if (!ft_strcmp(list[0], "S"))
 		info->texture[S].texture_path = ft_strdup(list[1]);
+	info->malloc.f_texture_path = MALLOC;
 	return (1);
 }

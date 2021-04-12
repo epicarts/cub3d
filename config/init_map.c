@@ -1,42 +1,5 @@
 
 #include "../cub3d.h"
-// map only  0, 1, 2, N,S,E,W
-
-int ** malloc_map(t_info *info)
-{
-	int **map;
-	int i;
-	int j;
-
-	if (!(map = (int**)malloc(sizeof(int*) * info->map_height)))
-		return (NULL);
-	i = 0;
-	while (i < info->map_height)
-	{
-		j = 0;
-		map[i] = (int*)malloc(sizeof(int) * info->map_width);
-		while (j < info->map_width)
-		{
-			map[i][j] = 0;
-			j++;
-		}
-		i++;
-	}
-	return map;
-}
-
-void free_map(t_info *info)
-{
-	int i;
-
-	i = 0;
-	while (i < info->map_height)
-	{
-		free(info->world_map[i]);
-		i++;
-	}
-	free(info->world_map);
-}
 
 void init_dir(t_info *info, char c)
 {
@@ -92,17 +55,13 @@ int init_map(t_info *info, int fd)
 	char *line;
 
 	if (!(info->world_map = malloc_map(info)))
-	{
-		printf("메모리 할당 실패;");
 		return (-1);
-	}
 	height = 0;
 	while (1)
 	{
 		i = get_next_line(fd, &line);
-		if (*line != '\0' && is_map_in_line(line)) //맵라인이 나온다면
+		if (*line != '\0' && is_map_in_line(line))
 		{
-			//printf("%s\n", line);
 			add_array_map(info, line, height);
 			height++;
 		}
@@ -111,9 +70,6 @@ int init_map(t_info *info, int fd)
 			break;
 	}
 	if (map_check(info->world_map, info->pos, info->map_height, info->map_width))
-	{
-		printf("dfs검증 실패\n");
 		return (-1);
-	}
 	return (0);
 }

@@ -4,7 +4,7 @@
 int		key_press(int keycode, t_info *info)
 {
 	if (keycode == KEY_ESC) //프로그램 종료.
-		exit(0);
+		exit_all(info, "정상적으로 종료", SUCCESS);
 	else if (keycode == KEY_W)
 		info->key.w = 1;
 	else if (keycode == KEY_A)
@@ -23,7 +23,7 @@ int		key_press(int keycode, t_info *info)
 int		key_release(int keycode, t_info *info)
 {
 	if (keycode == KEY_ESC)
-		exit(0);
+		exit_all(info, "정상적으로 종료", SUCCESS);
 	else if (keycode == KEY_W)
 		info->key.w = 0;
 	else if (keycode == KEY_A)
@@ -38,12 +38,3 @@ int		key_release(int keycode, t_info *info)
 		info->key.r = 0;
 	return (0);
 }
-
-
-int exit_win(t_info *info)
-{
-	free_map(info);
-	//todo 전체 free
-	exit(0);
-}
-

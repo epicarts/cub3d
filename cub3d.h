@@ -16,7 +16,6 @@
 # define X_EVENT_KEY_PRESS		2
 # define X_EVENT_KEY_RELEASE		3
 # define X_EVENT_EXIT			17
-#define X_EVENT_KEY_EXIT		17 //exit key code
 
 #define KEY_ESC			53
 # define KEY_W			13
@@ -26,6 +25,9 @@
 
 # define KEY_LEFT			123
 # define KEY_RIGHT			124
+
+# define ERROR 0
+# define SUCCESS 1
 
 # define VISITED	9
 
@@ -38,6 +40,8 @@
 #define EA 3
 #define S  4
 #define TEX_WALL_NUM 5
+
+#define MALLOC 1
 
 
 //parameters for scaling and moving the sprites
@@ -152,6 +156,17 @@ typedef struct s_map_check
 	int result;
 } t_map_check;
 
+typedef struct t_malloc
+{
+	int f_texture_path;
+	int f_map;
+	int f_mlx;
+	int f_sprite;
+	int f_buf;
+	int f_z_buf;
+	int f_texture;
+} t_malloc;
+
 typedef struct		s_info
 {
 	void			*mlx_ptr;
@@ -186,7 +201,7 @@ typedef struct		s_info
 	int win_x;
 	int win_y;
 
-	double	*zBuffer;
+	double	*z_buf;
 
 	t_xy *sprite;
 	int sprite_count;
@@ -195,6 +210,8 @@ typedef struct		s_info
 
 	int	screenshot_flag;
 	char *map_path;
+
+	t_malloc malloc;
 }					t_info;
 
 typedef struct s_wall_calc
@@ -216,7 +233,6 @@ typedef struct		s_pair
 	int		second;
 }					t_pair;
 
-
 # include <unistd.h>
 # include <stdlib.h>
 # include <limits.h>
@@ -234,7 +250,6 @@ int		cub3d(int fd, char **line);
 size_t				ft_strlcpy(char *dst, const char *src, size_t dstsize);
 char				**ft_split(char const *s, char c);
 int		ft_strcmp(char *s1, char *s2);
-void 	map_init(t_info *info, char *map_path);
 int		ft_atoi(const char *str);
 int		ft_isdigit(int c);
 int digit_in_str(char *str);
@@ -267,19 +282,14 @@ int read_map_end_line(int fd, char *line, int i);
 int read_map_line(t_info *info, int fd, char *line);
 
 int		load_textures(t_info *info);
-int		init_texture(t_info *info);
 
 void	calc_ray(t_info *info, t_ray *ray, int x);
 void	draw_wall(t_info *info, t_ray *ray, int x);
 
 void free_texture_path(t_info *info);
-void free_texture(t_info *info);
 
 void draw_sprites(t_info *info);
 
-void free_map(t_info *info);
-int malloc_sprite(t_info *info);
-void free_sprite(t_info *info);
 void add_sprite_pos(t_info *info);
 void draw_ceiling(t_info *info, int x, t_wall_calc w);
 void draw_floor(t_info *info, int x, t_wall_calc w);
@@ -297,5 +307,25 @@ int		key_press(int keycode, t_info *info);
 int		key_release(int keycode, t_info *info);
 void	rotate(t_info *info);
 
-int exit_win(t_info *info);
+int	exit_all(t_info *info, char *msg, int status);
+
+int		count_sprite(t_info *info);
+/*
+ * malloc / free
+*/
+int ** malloc_map(t_info *info);
+void free_map(t_info *info);
+
+int malloc_sprite(t_info *info);
+void free_sprite(t_info *info);
+
+int	malloc_buf(t_info *info);
+void free_buf(t_info *info);
+
+int malloc_z_buf(t_info *info);
+void free_z_buf(t_info *info);
+
+int malloc_texture(t_info *info);
+void free_texture(t_info *info);
+
 #endif

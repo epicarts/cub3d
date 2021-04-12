@@ -5,25 +5,71 @@
 #include <math.h>
 #include "cub3d.h"
 
+//메모리 할당
+void init_malloc_flag(t_info *info)
+{
+	info->malloc.f_texture_path = 0;
+	info->malloc.f_map = 0;
+	info->malloc.f_mlx = 0;
+	info->malloc.f_sprite = 0;
+	info->malloc.f_buf = 0;
+	info->malloc.f_z_buf = 0;
+	info->malloc.f_texture = 0;
+}
+
+int	exit_all(t_info *info, char *msg, int status)
+{
+	if (info->malloc.f_texture_path == MALLOC)
+		free_texture_path(info);
+	if (info->malloc.f_map == MALLOC)
+		free_map(info);
+	if (info->malloc.f_mlx == MALLOC)
+		mlx_destroy_window(info->mlx_ptr, info->win);
+	if (info->malloc.f_sprite == MALLOC)
+		free_sprite(info);
+	if (info->malloc.f_buf == MALLOC)
+		free_buf(info);
+	if (info->malloc.f_z_buf == MALLOC)
+		free_z_buf(info);
+	if (info->malloc.f_texture == MALLOC)
+		free_texture(info);
+	if (status == ERROR) // 에러면
+	{
+		printf("%s\n", msg);
+		system("leaks cub3D > leaks_result_temp; cat leaks_result_temp | grep leaked && rm -rf leaks_result_temp");
+		exit(EXIT_FAILURE); //실패 반환
+	}
+	printf("%s\n", msg);
+	system("leaks cub3D > leaks_result_temp; cat leaks_result_temp | grep leaked && rm -rf leaks_result_temp");
+	exit(EXIT_SUCCESS);//정상 종료
+}
+
 void	init_info(t_info *info)
 {
 	//mlx초기화, 윈도우초기화
 	if (!(info->mlx_ptr = mlx_init()) || !(info->win = mlx_new_window(
-			info->mlx_ptr, info->win_x, info->win_y, "cub3d")))
-		exit(0); //실패시 종료
+			info->mlx_ptr, info->win_x, info->win_y, "cub3D")))
+		exit_all(info, "mlx 초기화 실패", ERROR);
+	info->malloc.f_mlx = MALLOC;
 	set_xy(&info->move, 0, 0);
-
-	//회전 및 움직임 정도.
-	info->move_speed = 0.05;
+	info->move_speed = 0.05; 	//회전 및 움직임 정도.
 	info->rotate_speed = 0.05;
-
-	// 키보드 초기화.
-	info->key.w = 0;
+	info->key.w = 0; // 키보드 초기화.
 	info->key.a = 0;
 	info->key.s = 0;
 	info->key.d = 0;
 	info->key.l = 0;
 	info->key.r = 0;
+	if (!malloc_sprite(info))
+		exit_all(info, "sprite 할당 실패", ERROR);
+	if (!malloc_buf(info))
+		exit_all(info, "buf 할당 실패", ERROR);
+	if (!malloc_z_buf(info)) //todo free
+		exit_all(info, "z_buf 할당 실패", ERROR);
+	if (!malloc_texture(info))
+		exit_all(info, "texture 초기화 실패", ERROR);
+	if (!load_textures(info))
+		exit_all(info, "texture 로드 실패", ERROR);
 }
 
 
@@ -87,89 +133,16 @@ void  ft_screen_check(t_info *info)
 	printf("winx x: %d  winy y %d\n", info->win_x, info->win_y);
 }
 
-int	malloc_buf(t_info *info)
-{
-	int i;
-	int j;
-
-	if (!(info->buf = (int**)malloc(sizeof(int*) * info->win_y)))
-		return (0);
-	i = 0;
-	while (i < info->win_y)
-	{
-		j = 0;
-		if (!(info->buf[i] = (int*)malloc(sizeof(int) * info->win_x)))
-			return (0);
-		while (j < info->win_x)
-		{
-			info->buf[i][j] = 0;
-			j++;
-		}
-		i++;
-	}
-	return (1);
-}
-
-int malloc_zbuf(t_info *info)
-{
-	if (!(info->zBuffer = (double *)malloc(sizeof(double) * info->win_x)))
-		return (0);
-	return (1);
-}
 
 int			main(int argc, char *argv[])
 {
 	t_info	info;
 
+	init_malloc_flag(&info);
 	arg_parse(&info, argc, argv);
 	read_map(&info, info.map_path);
-	if (malloc_sprite(&info))
-	{
-		printf("sprite실패");
-		free_map(&info); //위에서 맵을 동적할당했으므로 free
-		exit(-1);
-	}
-
-	//todo 삭제.
-	for (int i = 0; i < info.sprite_count; i++)
-	{
-		printf("(%f,%f)\n", info.sprite[i].y, info.sprite[i].x);
-	}
-
 	ft_screen_check(&info); // 화면 사이즈 나오기전에 할당.
 	init_info(&info);
-
-	//텍스쳐가 스크린 사이즈 버퍼. => 버퍼에 저장해놓고 그림.
-	if (!malloc_buf(&info)) //todo free
-	{
-		printf("buf 할당 실패");
-		exit(-1);
-	}
-
-	if (!malloc_zbuf(&info)) //todo free
-	{
-		printf("zbuf 할당 실패");
-		exit(-1);
-	}
-
-	if (init_texture(&info))
-	{
-		printf("texture 초기화 실패");
-		free_texture_path(&info);
-		free_map(&info);
-		free_sprite(&info);
-		exit(-1);
-	}
-	if (load_textures(&info))
-	{
-		printf("texture 로드 실패");
-		free_texture_path(&info);
-		free_texture(&info);
-		free_sprite(&info);
-		free_map(&info);
-		//todo free check
-		exit(-1);
-	}
 
 	info.img.img_ptr = mlx_new_image(info.mlx_ptr, info.win_x, info.win_y);
 	info.img.data = (int *)mlx_get_data_addr(info.img.img_ptr, &info.img.bpp, &info.img.size_line, &info.img.endian);
@@ -180,7 +153,7 @@ int			main(int argc, char *argv[])
 	//키 이벤트, 키 함수.
 	mlx_hook(info.win, X_EVENT_KEY_PRESS, 0, &key_press, &info);
 	mlx_hook(info.win, X_EVENT_KEY_RELEASE, 0, &key_release, &info);
-	mlx_hook(info.win, X_EVENT_EXIT, 0, &exit_win, &info);
+	mlx_hook(info.win, X_EVENT_EXIT, 0, &exit_all, &info);
 
 	mlx_loop_hook(info.mlx_ptr, &main_loop, &info);
 

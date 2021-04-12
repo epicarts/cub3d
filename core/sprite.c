@@ -40,8 +40,8 @@ void draw_sprite(t_info *info, t_xy sprite)
 		sc.texX = (int)((256 * (x - (-sc.spriteWidth / 2 + sc.screen_x)) * TEX_WIDTH / sc.spriteWidth) / 256);
 		// sprite.transform.y > 0 음수면 반대쪽 카메라에 보임.
 		// && stripe > 0 && stripe < WIN_WIDTH  화면에 있습니다. 왼쪽 오른쪽인듯 ? on the screen
-		// sprite.transform.y < info->zBuffer[stripe] => 벽 뒤에 있는지 앞에 있는지 판별. 이전에 저장해놓은 벽과 카메라 수선의 발사이즈.
-		if (sc.transform.y > 0 && x >= 0 && x < info->win_x && sc.transform.y < info->zBuffer[x])
+		// sprite.transform.y < info->z_buf[stripe] => 벽 뒤에 있는지 앞에 있는지 판별. 이전에 저장해놓은 벽과 카메라 수선의 발사이즈.
+		if (sc.transform.y > 0 && x >= 0 && x < info->win_x && sc.transform.y < info->z_buf[x])
 			y = sc.drawStartY - 1;
 		while (++y <= sc.drawEndY)
 		{

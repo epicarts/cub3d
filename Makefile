@@ -35,9 +35,11 @@ SRCS = ./cub3d.c \
        ./core/move.c \
        ./config/arg_parser.c \
        ./core/screenshot.c \
-       ./core/hook_event.c
+       ./core/hook_event.c \
+       ./memory/exit_free.c \
+       ./memory/exit_malloc.c
 
-NAME = cub3d
+NAME = cub3D
 CUBLIB = cub3d.a
 HEADERS = cub3d.h
 

@@ -1,23 +1,6 @@
 
 #include "../cub3d.h"
 
-int init_texture(t_info *info)
-{
-	int i;
-	int j;
-
-	i = -1;
-	while (++i < TEX_WALL_NUM)
-	{
-		j = -1;
-		if (!(info->texture[i].texture = (int *)malloc(sizeof(int) * (TEX_WIDTH * TEX_HEIGHT)))) //todo free 동적 할당.
-			return (-1);
-		while (++j < (TEX_HEIGHT * TEX_WIDTH)) //0으로 패딩.
-			info->texture[i].texture[j] = 0;
-	}
-	return (0);
-}
-
 int	load_image(t_info *info, int *texture, char *path, t_img *img)
 {
 	int y;
@@ -47,39 +30,14 @@ int		load_textures(t_info *info)
 	t_img	img;
 
 	if(load_image(info, info->texture[EA].texture, info->texture[EA].texture_path, &img))
-		return (-1);
+		return (0);
 	if(load_image(info, info->texture[SO].texture, info->texture[SO].texture_path, &img))
-		return (-1);
+		return (0);
 	if(load_image(info, info->texture[WE].texture, info->texture[WE].texture_path, &img))
-		return (-1);
+		return (0);
 	if(load_image(info, info->texture[NO].texture, info->texture[NO].texture_path, &img))
-		return (-1);
+		return (0);
 	if(load_image(info, info->texture[S].texture, info->texture[S].texture_path, &img))
-		return (-1);
-	return (0);
-}
-
-//todo 동적할당으로 지정한 경로 free. 프로그램 종료시 호출
-void free_texture_path(t_info *info)
-{
-	int i;
-
-	i = 0;
-	while (i < TEX_WALL_NUM)
-	{
-		free(info->texture[i].texture_path);
-		i++;
-	}
-}
-
-void free_texture(t_info *info)
-{
-	int i;
-
-	i = 0;
-	while (i < TEX_WALL_NUM)
-	{
-		free(info->texture[i].texture);
-		i++;
-	}
+		return (0);
+	return (1);
 }

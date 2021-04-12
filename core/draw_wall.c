@@ -55,5 +55,5 @@ void draw_wall(t_info *info, t_ray *ray, int x)
 	}
 	draw_ceiling(info, x, w);
 	draw_floor(info, x, w);
-	info->zBuffer[x] = ray->perp_wall_dist; 	// 각 레이캐스팅의 수선의 발 정보들을 저장해놓는다.
+	info->z_buf[x] = ray->perp_wall_dist; 	// 각 레이캐스팅의 수선의 발 정보들을 저장해놓는다.
 }

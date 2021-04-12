@@ -100,10 +100,10 @@ int map_check(int **src_map, t_xy pos, int map_y, int map_x)
 			printf("%d ", map_info.map[i][j]);
 		printf("\n");
 	}
+	free_copy_map(map_info.map, map_y);
 	if (map_info.result == -1)
 		return (-1);
 	printf("==========================\n\n");
-	free_copy_map(map_info.map, map_y);
 	return (0);
 }
 

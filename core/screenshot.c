@@ -72,12 +72,7 @@ int save_bmp(t_info *info)
 void screenshot(t_info *info)
 {
 	if (!save_bmp(info))
-	{
-		printf("세이브 실패");
-		exit(1);
-	}
-	printf("세이브 성공");
-	exit(1);
-	//todo 메모리 초기화 하면서 종료하도록 해야함. exit 함수 만들고 작업 예정.
+		exit_all(info, "스크린샷 세이브 실패", ERROR);
+	exit_all(info, "스크린샷 세이브 성공", ERROR);
 }
 

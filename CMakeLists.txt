@@ -40,6 +40,8 @@ add_executable(
         core/screenshot.c
         utils/ft_bzero.c
         core/hook_event.c
+        memory/exit_free.c
+        memory/exit_malloc.c
 )
 
 target_link_libraries(cub3d "-framework AppKit" "-framework OpenGL" "mlx")

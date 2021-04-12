@@ -20,7 +20,6 @@ int is_identifier_in_line(t_info *info, char *line)
 		identifier_fc_check(info, list);
 	else // 잘못된 맵파일.
 		result = 0;
-	// todo leak check
 	free_2d_malloc(list);
 	return (result);
 }
