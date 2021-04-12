@@ -6,13 +6,13 @@
 /*   By: ychoi <ychoi@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/30 16:18:09 by ychoi             #+#    #+#             */
-/*   Updated: 2020/12/30 16:47:18 by ychoi            ###   ########.fr       */
+/*   Updated: 2021/04/13 05:22:56 by ychoi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../cub3d.h"
 
-int		ft_isdigit(int c)
+int	ft_isdigit(int c)
 {
 	if ('0' <= c && c <= '9')
 		return (1);

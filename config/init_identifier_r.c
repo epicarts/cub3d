@@ -1,9 +1,18 @@
-//
-// Created by YoungHo on 2021/04/01.
-//
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init_identifier_r.c                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ychoi <ychoi@student.42seoul.kr>           +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/04/13 03:31:05 by ychoi             #+#    #+#             */
+/*   Updated: 2021/04/13 03:35:44 by ychoi            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../cub3d.h"
 
-int identifier_r(t_info *info, char** list)
+int	identifier_r(t_info *info, char **list)
 {
 	if (list[1] == NULL || list[2] == NULL )
 		return (0);
@@ -11,7 +20,7 @@ int identifier_r(t_info *info, char** list)
 		return (0);
 	info->win_x = ft_atoi(list[1]);
 	info->win_y = ft_atoi(list[2]);
-	if (0 < info->win_x && 0 < info->win_y) //음수거나 0이면 안댐.
+	if (0 < info->win_x && 0 < info->win_y)
 		return (1);
 	return (0);
 }

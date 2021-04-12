@@ -1,7 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init_map.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ychoi <ychoi@student.42seoul.kr>           +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/04/13 03:42:11 by ychoi             #+#    #+#             */
+/*   Updated: 2021/04/13 03:44:03 by ychoi            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "../cub3d.h"
 
-void init_dir(t_info *info, char c)
+void	init_dir(t_info *info, char c)
 {
 	if (c == 'N')
 	{
@@ -25,9 +36,9 @@ void init_dir(t_info *info, char c)
 	}
 }
 
-void add_array_map(t_info *info, const char *line, int height)
+void	add_array_map(t_info *info, const char *line, int height)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (line[i])
@@ -38,9 +49,10 @@ void add_array_map(t_info *info, const char *line, int height)
 			info->world_map[height][i] = 1;
 		else if (line[i] == '2')
 			info->world_map[height][i] = 2;
-		else if (line[i] == 'N' || line[i] == 'S' || line[i] == 'E' || line[i] == 'W')
+		else if (line[i] == 'N' || line[i] == 'S'
+			|| line[i] == 'E' || line[i] == 'W')
 		{
-			init_dir(info, line[i]); //사용자 방향 초기화.
+			init_dir(info, line[i]);
 			set_xy(&info->pos, height + 0.5, i + 0.5);
 			info->world_map[height][i] = 0;
 		}
@@ -48,13 +60,14 @@ void add_array_map(t_info *info, const char *line, int height)
 	}
 }
 
-int init_map(t_info *info, int fd)
+int	init_map(t_info *info, int fd)
 {
-	int i;
-	int height;
-	char *line;
+	int		i;
+	int		height;
+	char	*line;
 
-	if (!(info->world_map = malloc_map(info)))
+	info->world_map = malloc_map(info);
+	if (!(info->world_map))
 		return (-1);
 	height = 0;
 	while (1)
@@ -67,9 +80,10 @@ int init_map(t_info *info, int fd)
 		}
 		free(line);
 		if (i <= 0)
-			break;
+			break ;
 	}
-	if (map_check(info->world_map, info->pos, info->map_height, info->map_width))
+	if (map_check(info->world_map, info->pos,
+			info->map_height, info->map_width))
 		return (-1);
 	return (0);
 }

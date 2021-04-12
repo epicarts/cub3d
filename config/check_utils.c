@@ -1,18 +1,25 @@
-//
-// Created by YoungHo on 2021/04/01.
-//
-
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   check_utils.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ychoi <ychoi@student.42seoul.kr>           +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/04/13 01:52:43 by ychoi             #+#    #+#             */
+/*   Updated: 2021/04/13 03:00:23 by ychoi            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "../cub3d.h"
 
-void count_map_width_height(t_info *info, char *line)
+void	count_map_width_height(t_info *info, char *line)
 {
 	if (info->map_width < (int)ft_strlen(line))
 		info->map_width = ft_strlen(line);
 	info->map_height++;
 }
 
-void init_dir_duplicate(t_info *info)
+void	init_dir_duplicate(t_info *info)
 {
 	info->dir_check.n = 0;
 	info->dir_check.s = 0;
@@ -20,21 +27,21 @@ void init_dir_duplicate(t_info *info)
 	info->dir_check.w = 0;
 }
 
-int check_dir_duplicate(t_info *info)
+int	check_dir_duplicate(t_info *info)
 {
-	int count;
+	int		count;
 
-	count = info->dir_check.n + info->dir_check.s +
-			info->dir_check.e + info->dir_check.w;
+	count = (info->dir_check.n + info->dir_check.s)
+		+ (info->dir_check.e + info->dir_check.w);
 	if (count == 1)
 		return (0);
 	else
 		return (1);
 }
 
-void count_dir_duplicate(t_info *info, const char *line)
+void	count_dir_duplicate(t_info *info, const char *line)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (line[i])
@@ -51,7 +58,8 @@ void count_dir_duplicate(t_info *info, const char *line)
 	}
 }
 
-void check_list_init(t_info *info) {
+void	check_list_init(t_info *info)
+{
 	info->read_check.r = 0;
 	info->read_check.no = 0;
 	info->read_check.so = 0;

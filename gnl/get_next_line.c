@@ -6,15 +6,15 @@
 /*   By: ychoi <ychoi@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/21 00:24:50 by ychoi             #+#    #+#             */
-/*   Updated: 2021/02/25 17:45:07 by ychoi            ###   ########.fr       */
+/*   Updated: 2021/04/13 03:00:27 by ychoi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../cub3d.h"
 
-char					*ft_strchr(const char *s, int c)
+char	*ft_strchr(const char *s, int c)
 {
-	const char *p_s;
+	const char	*p_s;
 
 	p_s = s;
 	while (*p_s != '\0')
@@ -28,13 +28,14 @@ char					*ft_strchr(const char *s, int c)
 	return (NULL);
 }
 
-int						split_line(char **dst, char **line)
+int	split_line(char **dst, char **line)
 {
 	size_t	i;
 	char	*tmp;
 
 	i = 0;
-	if (!(tmp = ft_strdup(*dst)))
+	tmp = ft_strdup(*dst);
+	if (!(tmp))
 		return (-1);
 	while (tmp[i] != '\n')
 		i++;
@@ -48,11 +49,12 @@ int						split_line(char **dst, char **line)
 	return (0);
 }
 
-int						return_fun(int s, char **saves, char **line)
+int	return_fun(int s, char **saves, char **line)
 {
 	if (s == 0)
 	{
-		if (!(*line = ft_strdup(*saves)))
+		*line = ft_strdup(*saves);
+		if (!(*line))
 			return (-1);
 		free(*saves);
 		*saves = NULL;
@@ -65,7 +67,16 @@ int						return_fun(int s, char **saves, char **line)
 	return (1);
 }
 
-int						get_next_line(int fd, char **line)
+void	null_check(char **save)
+{
+	if (*save == NULL)
+	{
+		*save = (char *)malloc(sizeof(char) * 1);
+		*save[0] = '\0';
+	}
+}
+
+int	get_next_line(int fd, char **line)
 {
 	char			*buf;
 	char			*tmp;
@@ -75,16 +86,16 @@ int						get_next_line(int fd, char **line)
 	if (fd < 0 || line == NULL || BUFFER_SIZE <= 0 || OPEN_MAX <= fd)
 		return (-1);
 	s = -2;
-	if (saves[fd] == NULL)
-	{
-		saves[fd] = (char *)malloc(sizeof(char) * 1);
-		saves[fd][0] = '\0';
-	}
+	null_check(&saves[fd]);
 	buf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
-	while (!ft_strchr(saves[fd], '\n') && 0 < (s = read(fd, buf, BUFFER_SIZE)))
+	while (!ft_strchr(saves[fd], '\n'))
 	{
+		s = read(fd, buf, BUFFER_SIZE);
+		if (0 >= s)
+			break ;
 		buf[s] = '\0';
-		if (!(tmp = ft_strjoin(saves[fd], buf)))
+		tmp = ft_strjoin(saves[fd], buf);
+		if (!(tmp))
 			return (-1);
 		free(saves[fd]);
 		saves[fd] = tmp;

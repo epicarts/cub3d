@@ -6,13 +6,13 @@
 /*   By: ychoi <ychoi@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/22 04:55:10 by ychoi             #+#    #+#             */
-/*   Updated: 2020/10/22 04:55:50 by ychoi            ###   ########.fr       */
+/*   Updated: 2021/04/13 05:23:19 by ychoi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../cub3d.h"
 
-int		ft_strcmp(char *s1, char *s2)
+int	ft_strcmp(char *s1, char *s2)
 {
 	while (*s1 != '\0' && *s2 != '\0')
 	{

@@ -6,15 +6,15 @@
 /*   By: ychoi <ychoi@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/21 00:25:20 by ychoi             #+#    #+#             */
-/*   Updated: 2021/02/25 01:23:44 by ychoi            ###   ########.fr       */
+/*   Updated: 2021/04/13 05:13:27 by ychoi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../cub3d.h"
 
-size_t		ft_strlen(const char *s)
+size_t	ft_strlen(const char *s)
 {
-	size_t count;
+	size_t	count;
 
 	count = 0;
 	while (s[count] != '\0')
@@ -22,7 +22,7 @@ size_t		ft_strlen(const char *s)
 	return (count);
 }
 
-size_t		ft_strlcat(char *dst, char *src, size_t size)
+size_t	ft_strlcat(char *dst, char *src, size_t size)
 {
 	size_t			dst_len;
 	size_t			src_len;
@@ -49,7 +49,7 @@ size_t		ft_strlcat(char *dst, char *src, size_t size)
 	return (dst_len + src_len);
 }
 
-void		*ft_memccpy(void *dst, const void *src, int c, size_t n)
+void	*ft_memccpy(void *dst, const void *src, int c, size_t n)
 {
 	unsigned char			*p_dst;
 	const unsigned char		*p_src;
@@ -70,7 +70,7 @@ void		*ft_memccpy(void *dst, const void *src, int c, size_t n)
 	return (NULL);
 }
 
-char		*ft_strjoin(char const *s1, char const *s2)
+char	*ft_strjoin(char const *s1, char const *s2)
 {
 	size_t	s1_len;
 	size_t	s2_len;
@@ -89,7 +89,7 @@ char		*ft_strjoin(char const *s1, char const *s2)
 	return (s);
 }
 
-char		*ft_strdup(const char *s1)
+char	*ft_strdup(const char *s1)
 {
 	size_t	i;
 	char	*d1;

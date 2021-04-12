@@ -6,7 +6,7 @@
 /*   By: ychoi <ychoi@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/08 03:41:04 by ychoi             #+#    #+#             */
-/*   Updated: 2021/01/08 05:48:21 by ychoi            ###   ########.fr       */
+/*   Updated: 2021/04/13 05:23:15 by ychoi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 size_t	counting_words(char const *s, char c)
 {
-	size_t count;
+	size_t	count;
 
 	count = 0;
 	while (*s != '\0')
@@ -33,7 +33,7 @@ size_t	counting_words(char const *s, char c)
 
 void	*free_split(char **ptr, size_t size)
 {
-	size_t i;
+	size_t	i;
 
 	i = 0;
 	while (i < size)
@@ -47,8 +47,8 @@ void	*free_split(char **ptr, size_t size)
 
 char	**split_by_words(char const *s, char c, char **d, size_t row_count)
 {
-	size_t row;
-	size_t col;
+	size_t	row;
+	size_t	col;
 
 	row = 0;
 	while (*s != '\0' && row < row_count)

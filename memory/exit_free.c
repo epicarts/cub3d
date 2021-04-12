@@ -1,8 +1,20 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   exit_free.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ychoi <ychoi@student.42seoul.kr>           +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/04/13 05:13:43 by ychoi             #+#    #+#             */
+/*   Updated: 2021/04/13 05:14:59 by ychoi            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../cub3d.h"
 
-void free_map(t_info *info)
+void	free_map(t_info *info)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (i < info->map_height)
@@ -20,9 +32,9 @@ void	free_sprite(t_info *info)
 	free(info->sprite_order);
 }
 
-void free_buf(t_info *info)
+void 	free_buf(t_info *info)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (i < info->win_y)
@@ -33,14 +45,9 @@ void free_buf(t_info *info)
 	free(info->buf);
 }
 
-void free_z_buf(t_info *info)
+void	free_texture(t_info *info)
 {
-	free(info->z_buf);
-}
-
-void free_texture(t_info *info)
-{
-	int i;
+	int	i;
 
 	i = 0;
 	while (i < TEX_WALL_NUM)
@@ -50,9 +57,9 @@ void free_texture(t_info *info)
 	}
 }
 
-void free_texture_path(t_info *info)
+void	free_texture_path(t_info *info)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (i < TEX_WALL_NUM)

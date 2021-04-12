@@ -1,30 +1,43 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init_identifier.c                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ychoi <ychoi@student.42seoul.kr>           +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/04/13 03:36:23 by ychoi             #+#    #+#             */
+/*   Updated: 2021/04/13 03:42:08 by ychoi            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "../cub3d.h"
 
-// key, value. => key 가 있는지 찾음.
-int is_identifier_in_line(t_info *info, char *line)
+int	is_identifier_in_line(t_info *info, char *line)
 {
-	char **list;
-	int result;
-	// 라인을 읽었을떄 split이 안되면 리턴,
-	if (!(list = ft_split(line, ' ')))
+	char	**list;
+	int		result;
+
+	list = ft_split(line, ' ');
+	if (!(list))
 		return (0);
-	//벽인가?
 	result = 1;
-	if ((!ft_strcmp(list[0], "NO") || !ft_strcmp(list[0], "SO") || !ft_strcmp(list[0], "WE") || !ft_strcmp(list[0], "EA") || !ft_strcmp(list[0], "S"))
-		&& identifier_texture(info, list))
+	if ((!ft_strcmp(list[0], "NO") || !ft_strcmp(list[0], "SO")
+			|| !ft_strcmp(list[0], "WE") || !ft_strcmp(list[0], "EA")
+			|| !ft_strcmp(list[0], "S")) && identifier_texture(info, list))
 		identifier_texture_check(info, list);
-	else if(!ft_strcmp(list[0], "R") && identifier_r(info, list)) //R
+	else if (!ft_strcmp(list[0], "R") && identifier_r(info, list))
 		info->read_check.r = 1;
-	else if((!ft_strcmp(list[0], "F") || !ft_strcmp(list[0], "C")) && identifier_fc(info, list)) //F, C, 벽, 천장
+	else if ((!ft_strcmp(list[0], "F") || !ft_strcmp(list[0], "C"))
+		&& identifier_fc(info, list))
 		identifier_fc_check(info, list);
-	else // 잘못된 맵파일.
+	else
 		result = 0;
 	free_2d_malloc(list);
 	return (result);
 }
 
-int identifier_check(t_info *info) {
+int	identifier_check(t_info	*info)
+{
 	if (!info->read_check.r)
 		return (0);
 	if (!info->read_check.no)
@@ -44,14 +57,16 @@ int identifier_check(t_info *info) {
 	return (1);
 }
 
-int init_identifier(t_info *info, int fd)
+int	init_identifier(t_info *info, int fd)
 {
-	int i;
-	char *line;
+	int		i;
+	char	*line;
 
-	while ((i = get_next_line(fd, &line)) > 0)
+	while (1)
 	{
-		//라인인지 파악.
+		i = get_next_line(fd, &line);
+		if (i <= 0)
+			break ;
 		if (*line == '\0' || is_identifier_in_line(info, line))
 			;
 		else
@@ -60,11 +75,11 @@ int init_identifier(t_info *info, int fd)
 			return (-1);
 		}
 		if (identifier_check(info))
-			break;
+			break ;
 		free(line);
 	}
 	free(line);
-	if (i <= 0) // 파일이 끝나면 안댐.
-		return (-1); // 오류, 프로그램 종료.
-	return (0); //초기화 성공.
+	if (i <= 0)
+		return (-1);
+	return (0);
 }

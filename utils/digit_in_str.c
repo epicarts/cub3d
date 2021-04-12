@@ -1,14 +1,25 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   digit_in_str.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ychoi <ychoi@student.42seoul.kr>           +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/04/13 05:22:08 by ychoi             #+#    #+#             */
+/*   Updated: 2021/04/13 05:22:18 by ychoi            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "../cub3d.h"
 
-int digit_in_str(char *str)
+int	digit_in_str(char *str)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (str[i])
 	{
-		if(!(ft_isdigit(str[i])))
+		if (!(ft_isdigit(str[i])))
 			return (0);
 		i++;
 	}

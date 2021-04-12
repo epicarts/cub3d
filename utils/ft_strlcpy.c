@@ -6,17 +6,17 @@
 /*   By: ychoi <ychoi@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/01 05:45:23 by ychoi             #+#    #+#             */
-/*   Updated: 2021/01/01 23:59:36 by ychoi            ###   ########.fr       */
+/*   Updated: 2021/04/13 05:23:34 by ychoi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../cub3d.h"
 
-size_t		ft_strlcpy(char *dst, const char *src, size_t dstsize)
+size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize)
 {
-	size_t src_len;
-	size_t dst_len;
-	size_t i;
+	size_t	src_len;
+	size_t	dst_len;
+	size_t	i;
 
 	if (dst == NULL || src == NULL)
 		return (0);

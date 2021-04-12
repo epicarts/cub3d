@@ -1,40 +1,53 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   first_map_check.c                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ychoi <ychoi@student.42seoul.kr>           +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/04/13 02:02:42 by ychoi             #+#    #+#             */
+/*   Updated: 2021/04/13 03:08:57 by ychoi            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "../cub3d.h"
 
-char *move_map_line(int fd)
+char	*move_map_line(int fd)
 {
-	char *line;
-	int i;
+	char	*line;
+	int		i;
 
-	//맵 라인이 나올떄까지 읽음.
-	while ((i = get_next_line(fd, &line)) > 0) {
+	while (1)
+	{
+		i = get_next_line(fd, &line);
+		if (i <= 0)
+			break ;
 		if (*line != '\0' && is_map_in_line(line))
-			break;
+			break ;
 		else if (*line == '\0')
 			;
-		else // 그 밖이 나올경우
+		else
 		{
 			free(line);
 			return (NULL);
 		}
 		free(line);
 	}
-	if (i <= 0) //마지막 줄이 끝난거면 종료.
+	if (i <= 0)
 	{
 		free(line);
 		return (NULL);
 	}
-	return line;
+	return (line);
 }
 
-int read_map_end_line(int fd, char *line, int i)
+int	read_map_end_line(int fd, char *line, int i)
 {
-	while (1) //다른게 나왔을경우 파일 끝까지 엔터밖에 없는가?
+	while (1)
 	{
-		if (*line == '\0') {
+		if (*line == '\0')
 			free(line);
-		}
-		else //다른게 나오면 -1 리턴
+		else
 		{
 			free(line);
 			return (-1);
@@ -45,12 +58,11 @@ int read_map_end_line(int fd, char *line, int i)
 	}
 }
 
-int read_map_line(t_info *info, int fd, char *line)
+int	read_map_line(t_info *info, int fd, char *line)
 {
-	int i;
+	int	i;
 
-	//맵 시작부터 맵이 끝날때 까지 읽음.
-	count_map_width_height(info, line); //첫번쨰 맵 라인을 읽음.
+	count_map_width_height(info, line);
 	count_dir_duplicate(info, line);
 	free(line);
 	while (1)
@@ -70,7 +82,7 @@ int read_map_line(t_info *info, int fd, char *line)
 		}
 		free(line);
 		if (i <= 0)
-			break;
+			break ;
 	}
 	return (0);
 }

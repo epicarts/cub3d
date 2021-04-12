@@ -25,9 +25,11 @@ SRCS = ./cub3d.c \
        ./config/init_identifier_r.c \
        ./config/check_utils.c \
        ./config/first_map_check.c \
+       ./config/map_check_dfs.c \
        ./core/texture.c \
        ./core/ray.c \
        ./core/draw_wall.c \
+       ./core/sprite_utils.c \
        ./core/sprite.c \
        ./core/init_sprite.c \
        ./core/draw_floor_ceiling.c \

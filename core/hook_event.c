@@ -1,9 +1,20 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   hook_event.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ychoi <ychoi@student.42seoul.kr>           +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/04/13 04:30:28 by ychoi             #+#    #+#             */
+/*   Updated: 2021/04/13 04:31:13 by ychoi            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "../cub3d.h"
 
-int		key_press(int keycode, t_info *info)
+int	key_press(int keycode, t_info *info)
 {
-	if (keycode == KEY_ESC) //프로그램 종료.
+	if (keycode == KEY_ESC)
 		exit_all(info, "정상적으로 종료", SUCCESS);
 	else if (keycode == KEY_W)
 		info->key.w = 1;
@@ -20,7 +31,7 @@ int		key_press(int keycode, t_info *info)
 	return (0);
 }
 
-int		key_release(int keycode, t_info *info)
+int	key_release(int keycode, t_info *info)
 {
 	if (keycode == KEY_ESC)
 		exit_all(info, "정상적으로 종료", SUCCESS);

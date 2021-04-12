@@ -1,7 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init_identifier_texture.c                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ychoi <ychoi@student.42seoul.kr>           +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/04/13 03:35:48 by ychoi             #+#    #+#             */
+/*   Updated: 2021/04/13 03:36:13 by ychoi            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "../cub3d.h"
 
-void identifier_texture_check(t_info *info, char** list)
+void	identifier_texture_check(t_info *info, char **list)
 {
 	if (!ft_strcmp(list[0], "NO"))
 		info->read_check.no = 1;
@@ -15,12 +26,12 @@ void identifier_texture_check(t_info *info, char** list)
 		info->read_check.s = 1;
 }
 
-int identifier_texture(t_info *info, char** list)
+int	identifier_texture(t_info *info, char **list)
 {
 	if (list[1] == NULL)
 		return (0);
 	if (!ft_strcmp(list[0], "NO"))
-		info->texture[NO].texture_path = ft_strdup(list[1]); //todo 텍스쳐 로드시 지우기. free
+		info->texture[NO].texture_path = ft_strdup(list[1]);
 	else if (!ft_strcmp(list[0], "SO"))
 		info->texture[SO].texture_path = ft_strdup(list[1]);
 	else if (!ft_strcmp(list[0], "WE"))

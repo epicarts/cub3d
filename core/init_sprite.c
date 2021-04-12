@@ -1,10 +1,22 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init_sprite.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ychoi <ychoi@student.42seoul.kr>           +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/04/13 04:33:23 by ychoi             #+#    #+#             */
+/*   Updated: 2021/04/13 04:33:24 by ychoi            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../cub3d.h"
 
-int		count_sprite(t_info *info)
+int	count_sprite(t_info *info)
 {
-	int i;
-	int j;
-	int count;
+	int	i;
+	int	j;
+	int	count;
 
 	count = 0;
 	i = -1;
@@ -22,9 +34,9 @@ int		count_sprite(t_info *info)
 
 void	add_sprite_pos(t_info *info)
 {
-	int i;
-	int j;
-	int count;
+	int	i;
+	int	j;
+	int	count;
 
 	count = 0;
 	i = -1;
@@ -42,5 +54,3 @@ void	add_sprite_pos(t_info *info)
 		}
 	}
 }
-
-
