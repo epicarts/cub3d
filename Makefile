@@ -47,7 +47,7 @@ OBJS = $(SRCS:.c=.o)
 
 $(NAME): $(OBJS)
 	ar rcs $(CUBLIB) $(OBJS)
-	$(CC) -o $@ $(CFLAGS) $(CUBLIB) $(LIBS)
+	$(CC) -o $(NAME) $(CFLAGS) $(CUBLIB) $(LIBS)
 
 all: $(NAME)
 
@@ -55,7 +55,7 @@ clean:
 	rm -rf $(OBJS)
 
 fclean:	clean
-	rm -rf $(NAME)
+	rm -rf $(NAME) $(CUBLIB)
 
 re: fclean all
 
