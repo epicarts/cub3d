@@ -16,7 +16,7 @@ int	identifier_r(t_info *info, char **list)
 {
 	if (list[1] == NULL || list[2] == NULL )
 		return (0);
-	if (!(digit_in_str(list[1]) || digit_in_str(list[2])))
+	if (!(digit_in_str(list[1]) && digit_in_str(list[2])))
 		return (0);
 	info->win_x = ft_atoi(list[1]);
 	info->win_y = ft_atoi(list[2]);
