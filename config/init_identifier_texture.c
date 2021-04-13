@@ -6,7 +6,7 @@
 /*   By: ychoi <ychoi@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/13 03:35:48 by ychoi             #+#    #+#             */
-/*   Updated: 2021/04/13 03:36:13 by ychoi            ###   ########.fr       */
+/*   Updated: 2021/04/13 18:23:19 by ychoi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,5 @@ int	identifier_texture(t_info *info, char **list)
 		info->texture[EA].texture_path = ft_strdup(list[1]);
 	else if (!ft_strcmp(list[0], "S"))
 		info->texture[S].texture_path = ft_strdup(list[1]);
-	info->malloc.f_texture_path = MALLOC;
 	return (1);
 }

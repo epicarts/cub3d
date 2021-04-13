@@ -6,7 +6,7 @@
 /*   By: ychoi <ychoi@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/13 03:59:46 by ychoi             #+#    #+#             */
-/*   Updated: 2021/04/13 03:59:48 by ychoi            ###   ########.fr       */
+/*   Updated: 2021/04/13 18:23:18 by ychoi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 int	is_in_map(t_map_check *m, int y, int x)
 {
-	if (y > m->map_size.y - 1 || x > m->map_size.x - 1)
+	if (y > m->map_size.y - 1 || x > m->map_size.x - 1 || y < 0 || x < 0)
 		return (0);
 	return (1);
 }
