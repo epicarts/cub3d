@@ -6,7 +6,7 @@
 /*   By: ychoi <ychoi@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/13 03:36:23 by ychoi             #+#    #+#             */
-/*   Updated: 2021/04/13 18:26:55 by ychoi            ###   ########.fr       */
+/*   Updated: 2021/04/14 00:07:38 by ychoi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ int	is_identifier_in_line(t_info *info, char *line)
 			|| !ft_strcmp(list[0], "S")) && identifier_texture(info, list))
 		identifier_texture_check(info, list);
 	else if (!ft_strcmp(list[0], "R") && identifier_r(info, list))
-		info->read_check.r = 1;
+		info->read_check.r++;
 	else if ((!ft_strcmp(list[0], "F") || !ft_strcmp(list[0], "C"))
 		&& identifier_fc(info, list))
 		identifier_fc_check(info, list);
@@ -57,6 +57,16 @@ int	identifier_check(t_info	*info)
 	return (1);
 }
 
+int	identifier_duplicate_check(t_info *info)
+{
+	if (info->read_check.r == 1 && info->read_check.no == 1
+		&& info->read_check.so == 1 && info->read_check.we == 1
+		&& info->read_check.ea == 1 && info->read_check.s == 1
+		&& info->read_check.f == 1 && info->read_check.c == 1)
+		return (0);
+	return (1);
+}
+
 int	init_identifier(t_info *info, int fd)
 {
 	int		i;
@@ -79,7 +89,7 @@ int	init_identifier(t_info *info, int fd)
 		free(line);
 	}
 	free(line);
-	if (i <= 0)
+	if (i <= 0 || identifier_duplicate_check(info))
 		return (-1);
 	info->malloc.f_texture_path = MALLOC;
 	return (0);

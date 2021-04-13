@@ -15,7 +15,7 @@ SRCS = ./cub3d.c \
        ./utils/digit_in_str.c \
        ./utils/is_map.c \
        ./utils/set_xy.c \
-	   ./utils/ft_bzero.c \
+	./utils/ft_bzero.c \
        ./config/init_identifier_fc.c \
        ./config/init_identifier.c \
        ./config/init_identifier_texture.c \

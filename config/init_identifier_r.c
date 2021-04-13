@@ -6,7 +6,7 @@
 /*   By: ychoi <ychoi@student.42seoul.kr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/04/13 03:31:05 by ychoi             #+#    #+#             */
-/*   Updated: 2021/04/13 03:35:44 by ychoi            ###   ########.fr       */
+/*   Updated: 2021/04/13 23:59:29 by ychoi            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 int	identifier_r(t_info *info, char **list)
 {
-	if (list[1] == NULL || list[2] == NULL )
+	if (list[1] == NULL || list[2] == NULL || list[3] != NULL)
 		return (0);
 	if (!(digit_in_str(list[1]) && digit_in_str(list[2])))
 		return (0);
